@@ -11,6 +11,13 @@ export const REVIVE_COMMAND = {
     'Revival ping command, executable by members of the Promotions Team',
 };
 
+export const CONFIGURE_COMMAND = {
+  name: 'configure',
+  description: 'Configure the bot for your server.',
+  integration_types: [0, 1],
+  contexts: [0, 1, 2],
+};
+
 export const TEST_COMMAND = {
   name: 'test',
   description: 'This command serves no purpose.',
