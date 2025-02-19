@@ -38,7 +38,7 @@ jobs:
     # needs: [lint]
     environment:
       name: 'production'
-      url: 'https://discord.worker.nceahelp.com/'
+      url: 'https://vuwtechbot.workers.deez.ing/'
     steps:
       - uses: actions/checkout@v4
       - uses: pnpm/action-setup@v4

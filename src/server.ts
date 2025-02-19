@@ -69,13 +69,13 @@ router.post('/interactions', async (c) => {
             const interactionOptions = interactionData.options!;
             const courseCode = interactionOptions.find(
               (opt) => opt.name === 'course_code'
-            )?.value;
+            );
             const roleId = interactionOptions.find(
               (opt) => opt.name === 'role_id'
-            )?.value;
+            ) as discordJs.APIApplicationCommandInteractionDataNumberOption;
             const courseName = interactionOptions.find(
               (opt) => opt.name === 'course_name'
-            )?.value;
+            );
 
             if (courseCode && roleId && courseName) {
               await c.env.DISCORD_DATA.put(
@@ -102,9 +102,10 @@ router.post('/interactions', async (c) => {
         }
 
         case commands.JOIN_COMMAND.name.toLowerCase(): {
-          const courseCode = interaction.data.options.find(
+          const interactionData = interaction.data as discordJs.APIChatInputApplicationCommandInteractionData;
+          const courseCode = interactionData.options!.find(
             (opt) => opt.name === 'course_code'
-          )?.value;
+          );
 
           if (courseCode) {
             const courseData = await c.env.DISCORD_DATA.get(
@@ -146,9 +147,10 @@ router.post('/interactions', async (c) => {
         }
 
         case commands.GENERATE_COMMAND.name.toLowerCase(): {
-          const name = interaction.data.options.find(
+          const interactionData = interaction.data as discordJs.APIChatInputApplicationCommandInteractionData;
+          const name = interactionData.options!.find(
             (opt) => opt.name === 'name'
-          )?.value;
+          );
 
           if (name) {
             const category = await c.env.DISCORD_DATA.put(
