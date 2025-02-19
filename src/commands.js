@@ -84,3 +84,16 @@ export const LOOKUP_COMMAND = {
     },
   ],
 };
+
+export const GENERATE_COMMAND = {
+  name: 'generate',
+  description: 'Generate a category with 3 text channels.',
+  options: [
+    {
+      type: ApplicationCommandOptionType.String,
+      name: 'name',
+      description: 'Name for the category and channel name prefix',
+      required: true,
+    },
+  ],
+};
