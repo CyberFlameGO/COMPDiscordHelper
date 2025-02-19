@@ -61,10 +61,72 @@ router.post('/interactions', async (c) => {
         }
 
         case commands.CONFIGURE_COMMAND.name.toLowerCase(): {
+          if (
+            interaction.member &&
+            interaction.member.roles.includes('SPECIFIC_ROLE_ID')
+          ) {
+            const interactionData = interaction.data as discordJs.APIChatInputApplicationCommandInteractionData;
+            const interactionOptions = interactionData.options!;
+            const courseCode = interactionOptions.find(
+              (opt) => opt.name === 'course_code'
+            )?.value;
+            const roleId = interactionOptions.find(
+              (opt) => opt.name === 'role_id'
+            )?.value;
+            const courseName = interactionOptions.find(
+              (opt) => opt.name === 'course_name'
+            )?.value;
+
+            if (courseCode && roleId && courseName) {
+              await c.env.DISCORD_DATA.put(
+                `course_${courseCode}`,
+                JSON.stringify({ roleId, courseName, courseCode })
+              );
+              return c.json({
+                type: InteractionResponseType.CHANNEL_MESSAGE_WITH_SOURCE,
+                data: {
+                  content: `Course ${courseCode} configured successfully.`,
+                  flags: InteractionResponseFlags.EPHEMERAL,
+                },
+              });
+            }
+          }
           return c.json({
             type: InteractionResponseType.CHANNEL_MESSAGE_WITH_SOURCE,
             data: {
-              content: 'This command is not yet implemented.',
+              content:
+                'You do not have the correct role necessary to perform this action. If you believe this is an error, please contact the administrator.',
+              flags: InteractionResponseFlags.EPHEMERAL,
+            },
+          });
+        }
+
+        case commands.JOIN_COMMAND.name.toLowerCase(): {
+          const courseCode = interaction.data.options.find(
+            (opt) => opt.name === 'course_code'
+          )?.value;
+
+          if (courseCode) {
+            const courseData = await c.env.DISCORD_DATA.get(
+              `course_${courseCode}`
+            );
+            if (courseData) {
+              const { roleId } = JSON.parse(courseData);
+              return c.json({
+                type: InteractionResponseType.CHANNEL_MESSAGE_WITH_SOURCE,
+                data: {
+                  content: `You have been assigned the role for course ${courseCode}.`,
+                  allowed_mentions: {
+                    roles: [roleId],
+                  },
+                },
+              });
+            }
+          }
+          return c.json({
+            type: InteractionResponseType.CHANNEL_MESSAGE_WITH_SOURCE,
+            data: {
+              content: `Course ${courseCode} not found.`,
               flags: InteractionResponseFlags.EPHEMERAL,
             },
           });
