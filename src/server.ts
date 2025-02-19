@@ -65,13 +65,15 @@ router.post('/interactions', async (c) => {
             interaction.member &&
             interaction.member.roles.includes('SPECIFIC_ROLE_ID')
           ) {
-            const courseCode = interaction.data.options.find(
+            const interactionData = interaction.data as discordJs.APIChatInputApplicationCommandInteractionData;
+            const interactionOptions = interactionData.options!;
+            const courseCode = interactionOptions.find(
               (opt) => opt.name === 'course_code'
             )?.value;
-            const roleId = interaction.data.options.find(
+            const roleId = interactionOptions.find(
               (opt) => opt.name === 'role_id'
             )?.value;
-            const courseName = interaction.data.options.find(
+            const courseName = interactionOptions.find(
               (opt) => opt.name === 'course_name'
             )?.value;
 

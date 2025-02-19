@@ -50,50 +50,8 @@ async function register(url, body) {
   }
 }
 
-// supported types: number_lt=1, number_gt=2, number_eq=3 number_neq=4, datetime_lt=5, datetime_gt=6, boolean_eq=7, boolean_neq=8
-const metadata = [
-  {
-    key: 'cookieseaten',
-    name: 'Cookies Eaten',
-    description: 'Cookies Eaten Greater Than',
-    type: ApplicationRoleConnectionMetadataType.IntegerGreaterThanOrEqual,
-  },
-  {
-    key: 'allergictonuts',
-    name: 'Allergic To Nuts',
-    description: 'Is Allergic To Nuts',
-    type: ApplicationRoleConnectionMetadataType.BooleanEqual,
-  },
-  {
-    key: 'bakingsince',
-    name: 'Baking Since',
-    description: 'Days since baking their first cookie',
-    type: ApplicationRoleConnectionMetadataType.DatetimeGreaterThanOrEqual,
-  },
-  {
-    key: 'course_code',
-    name: 'Course Code',
-    description: 'Code of the course',
-    type: ApplicationRoleConnectionMetadataType.String,
-  },
-  {
-    key: 'course_name',
-    name: 'Course Name',
-    description: 'Name of the course',
-    type: ApplicationRoleConnectionMetadataType.String,
-  },
-  {
-    key: 'role_id',
-    name: 'Role ID',
-    description: 'ID of the role',
-    type: ApplicationRoleConnectionMetadataType.String,
-  },
-];
-
 const cmds = Object.values(commands);
 
 const commandEndpoint = `https://discord.com/api/v10/applications/${applicationId}/commands`;
-const metadataEndpoint = `https://discord.com/api/v10/applications/${applicationId}/role-connections/metadata`;
 
 await register(commandEndpoint, cmds);
-await register(metadataEndpoint, metadata);
