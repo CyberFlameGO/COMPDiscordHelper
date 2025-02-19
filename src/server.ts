@@ -80,7 +80,7 @@ router.post('/interactions', async (c) => {
             if (courseCode && roleId && courseName) {
               await c.env.DISCORD_DATA.put(
                 `course_${courseCode}`,
-                JSON.stringify({ roleId, courseName, courseCode })
+                JSON.stringify({ roleId, courseName })
               );
               return c.json({
                 type: InteractionResponseType.CHANNEL_MESSAGE_WITH_SOURCE,
