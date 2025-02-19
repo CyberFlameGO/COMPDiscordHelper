@@ -144,6 +144,43 @@ router.post('/interactions', async (c) => {
             },
           });
         }
+
+        case commands.GENERATE_COMMAND.name.toLowerCase(): {
+          const name = interaction.data.options.find(
+            (opt) => opt.name === 'name'
+          )?.value;
+
+          if (name) {
+            const category = await c.env.DISCORD_DATA.put(
+              `category_${name}`,
+              JSON.stringify({ name })
+            );
+
+            for (let i = 1; i <= 3; i++) {
+              await c.env.DISCORD_DATA.put(
+                `channel_${name}-${i}`,
+                JSON.stringify({ name: `${name}-${i}` })
+              );
+            }
+
+            return c.json({
+              type: InteractionResponseType.CHANNEL_MESSAGE_WITH_SOURCE,
+              data: {
+                content: `Category ${name} with channels ${name}-1, ${name}-2, and ${name}-3 created successfully.`,
+                flags: InteractionResponseFlags.EPHEMERAL,
+              },
+            });
+          }
+
+          return c.json({
+            type: InteractionResponseType.CHANNEL_MESSAGE_WITH_SOURCE,
+            data: {
+              content: 'Failed to create category and channels.',
+              flags: InteractionResponseFlags.EPHEMERAL,
+            },
+          });
+        }
+
         default:
           return c.json({ error: 'Unknown Type' }, { status: 400 });
       }
