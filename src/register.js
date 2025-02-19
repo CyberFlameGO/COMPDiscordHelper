@@ -70,6 +70,24 @@ const metadata = [
     description: 'Days since baking their first cookie',
     type: ApplicationRoleConnectionMetadataType.DatetimeGreaterThanOrEqual,
   },
+  {
+    key: 'course_code',
+    name: 'Course Code',
+    description: 'Code of the course',
+    type: ApplicationRoleConnectionMetadataType.String,
+  },
+  {
+    key: 'course_name',
+    name: 'Course Name',
+    description: 'Name of the course',
+    type: ApplicationRoleConnectionMetadataType.String,
+  },
+  {
+    key: 'role_id',
+    name: 'Role ID',
+    description: 'ID of the role',
+    type: ApplicationRoleConnectionMetadataType.String,
+  },
 ];
 
 const cmds = Object.values(commands);
