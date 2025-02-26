@@ -8,9 +8,6 @@ minify = true
 
 route = { pattern = "discord.worker.nceahelp.com", zone_name = "nceahelp.com", custom_domain = true }
 
-kv_namespaces = [
-  { binding = "DISCORD_DATA", id = ""}
-]
 
 tail_consumers = [{service = "nceahelpworker-tail"}]
 
