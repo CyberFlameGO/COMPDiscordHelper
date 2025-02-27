@@ -32,33 +32,6 @@ router.post('/interactions', async (c) => {
     case discordJs.InteractionType.ApplicationCommand: {
       // Most user commands will come as `APPLICATION_COMMAND`.
       switch (interaction.data.name.toLowerCase()) {
-        // Revive ping command - checks if a user has a role and pings a role if they do
-        case commands.REVIVE_COMMAND.name.toLowerCase(): {
-          if (
-            interaction.member &&
-            interaction.member.roles.includes('909724765026148402')
-          ) {
-            console.log('handling revive request');
-            return c.json({
-              type: InteractionResponseType.CHANNEL_MESSAGE_WITH_SOURCE,
-              data: {
-                content:
-                  "Hey there <@&879527848573042738> squad, it's time to make the chat active!",
-                allowed_mentions: {
-                  roles: ['879527848573042738'],
-                },
-              },
-            });
-          }
-          return c.json({
-            type: InteractionResponseType.CHANNEL_MESSAGE_WITH_SOURCE,
-            data: {
-              content:
-                'You do not have the correct role necessary to perform this action. If you believe this is an error, please contact CyberFlame United#0001 (<@218977195375329281>).',
-              flags: InteractionResponseFlags.EPHEMERAL,
-            },
-          });
-        }
 
         case commands.CONFIGURE_COMMAND.name.toLowerCase(): {
           if (

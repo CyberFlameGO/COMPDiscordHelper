@@ -36,9 +36,6 @@ jobs:
       matrix:
         node-version: [22]
     # needs: [lint]
-    environment:
-      name: 'production'
-      url: 'https://vuwtechbot.workers.deez.ing/'
     steps:
       - uses: actions/checkout@v4
       - uses: pnpm/action-setup@v4
