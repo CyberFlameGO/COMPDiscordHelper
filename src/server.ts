@@ -231,27 +231,15 @@ router.post('/interactions', async (c) => {
         if (courseCode && courseCode.focused) {
           const courses = await c.env.DISCORD_DATA.list({ prefix: 'course_' });
           // Get the course codes from the list of courses, from what the user has entered so far via .value
-          const courseOptions = await Promise.all(
-            courses.keys
-              .map(async (course) => {
-                const courseCode = course.name.split('_')[1];
-                const courseData = await c.env.DISCORD_DATA.get(course.name);
-                if (courseData) {
-                  const { courseName } = JSON.parse(courseData);
-                  return { name: `${courseCode}` /*— ${courseName}`*/, value: courseCode };
-                }
-                return null;
-              })
-          );
-          
-          const filteredCourseOptions = courseOptions
-            .filter((course) => course && course.name.startsWith(courseCode.value))
-            .map((course) => ({ name: course!.name, value: course!.value }));
+          const courseOptions = courses.keys
+          .map((course) => course.name.split('_')[1])
+          .filter((course) => course.startsWith(courseCode.value))
+          .map((course) => ({ name: course, value: course }));
           
           return c.json({
             type: InteractionResponseType.APPLICATION_COMMAND_AUTOCOMPLETE_RESULT,
             data: {
-              choices: filteredCourseOptions,
+              choices: courseOptions,
             },
           });
         }
