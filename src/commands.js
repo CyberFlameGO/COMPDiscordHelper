@@ -18,7 +18,7 @@ export const CONFIGURE_COMMAND = {
       required: true,
     },
     {
-      type: ApplicationCommandOptionType.Integer,
+      type: ApplicationCommandOptionType.String,
       name: 'role_id',
       description: 'Role ID to assign',
       required: true,
