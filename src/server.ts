@@ -233,7 +233,7 @@ router.post('/interactions', async (c) => {
           // Get the course codes from the list of courses, from what the user has entered so far via .value
           const courseOptions = courses.keys
           .map((course) => course.name.split('_')[1])
-          .filter((course) => course.startsWith(courseCode.value))
+          .filter((course) => course.startsWith(courseCode.value.toUpperCase()))
           .map((course) => ({ name: course, value: course }));
           
           return c.json({
