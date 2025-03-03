@@ -238,7 +238,7 @@ router.post('/interactions', async (c) => {
                 const courseData = await c.env.DISCORD_DATA.get(course.name);
                 if (courseData) {
                   const { courseName } = JSON.parse(courseData);
-                  return { name: `${courseCode} — ${courseName}`, value: courseCode };
+                  return { name: `${courseCode}` /*— ${courseName}`*/, value: courseCode };
                 }
                 return null;
               })
