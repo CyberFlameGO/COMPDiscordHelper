@@ -99,52 +99,38 @@ router.post('/interactions', async (c) => {
         case commands.JOIN_COMMAND.name.toLowerCase(): {
           const interactionData = interaction.data as discordJs.APIChatInputApplicationCommandInteractionData;
           const courseCode = getValueByKey(interactionData.options!, "course_code") as string;
-        
+
           if (courseCode) {
-            c.executionCtx.waitUntil((async () => {
-              const courseData = await c.env.DISCORD_DATA.get(
-                `course_${courseCode.toUpperCase()}`
-              );
-              if (courseData) {
-                const { roleId } = JSON.parse(courseData);
-                await fetch(`${discordApi}/guilds/${interaction.guild_id}/members/${interaction.member!.user.id}/roles/${roleId}`, {
-                  method: 'PUT',
-                  headers: {
-                    'Authorization': `Bot ${c.env.DISCORD_TOKEN}`,
-                    'Content-Type': 'application/json',
+            const courseData = await c.env.DISCORD_DATA.get(
+              `course_${courseCode.toUpperCase()}`
+            );
+            if (courseData) {
+              const { roleId } = JSON.parse(courseData);
+              await fetch(`${discordApi}/guilds/${interaction.guild_id}/members/${interaction.member!.user.id}/roles/${roleId}`, {
+                method: 'PUT',
+                headers: {
+                  'Authorization': `Bot ${c.env.DISCORD_TOKEN}`,
+                  'Content-Type': 'application/json',
+                },
+              });
+              return c.json({
+                type: InteractionResponseType.CHANNEL_MESSAGE_WITH_SOURCE,
+                data: {
+                  content: `You have been assigned the role for course ${courseCode}.`,
+                  allowed_mentions: {
+                    roles: [roleId],
                   },
-                });
-                return c.json({
-                  type: InteractionResponseType.CHANNEL_MESSAGE_WITH_SOURCE,
-                  data: {
-                    content: `You have been assigned the role for course ${courseCode}.`,
-                    allowed_mentions: {
-                      roles: [roleId],
-                    },
-                  },
-                });
-              } else {
-                return c.json({
-                  type: InteractionResponseType.CHANNEL_MESSAGE_WITH_SOURCE,
-                  data: {
-                    content: `Course ${courseCode} not found.`,
-                    flags: InteractionResponseFlags.EPHEMERAL,
-                  },
-                });
-              }
-            })());
-            return c.json({
-              type: InteractionResponseType.DEFERRED_CHANNEL_MESSAGE_WITH_SOURCE,
-            });
-          } else {
-            return c.json({
-              type: InteractionResponseType.CHANNEL_MESSAGE_WITH_SOURCE,
-              data: {
-                content: `Course code is required.`,
-                flags: InteractionResponseFlags.EPHEMERAL,
-              },
-            });
+                },
+              });
+            }
           }
+          return c.json({
+            type: InteractionResponseType.CHANNEL_MESSAGE_WITH_SOURCE,
+            data: {
+              content: `Course ${courseCode} not found.`,
+              flags: InteractionResponseFlags.EPHEMERAL,
+            },
+          });
         }
 
         // Ping command - for checking latency of the bot, returned as a non-ephemeral message
