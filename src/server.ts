@@ -147,6 +147,17 @@ router.post('/interactions', async (c) => {
         }
 
         case commands.GENERATE_COMMAND.name.toLowerCase(): {
+          if (!interaction.member ||
+          !interaction.member.roles.includes('1287260363556917330')) {
+            return c.json({
+              type: InteractionResponseType.CHANNEL_MESSAGE_WITH_SOURCE,
+              data: {
+                content: 'You do not have the correct role necessary to perform this action. If you believe this is an error, please contact the administrator.',
+                flags: InteractionResponseFlags.EPHEMERAL,
+              },
+            });
+          }
+
           const interactionData = interaction.data as discordJs.APIChatInputApplicationCommandInteractionData;
           const name = getValueByKey(interactionData.options!, "name");
 
@@ -221,7 +232,7 @@ router.post('/interactions', async (c) => {
           const courses = await c.env.DISCORD_DATA.list({ prefix: 'course_' });
           // Get the course codes from the list of courses, from what the user has entered so far via .value
           const courseOptions = courses.keys
-            .map((course) => JSON.parse(course.name.split('_')[1]))
+            .map((course) => course.name.split('_')[1])
             .filter((course) => course.startsWith(courseCode.value))
             .map((course) => ({ name: course, value: course }));
           return c.json({
