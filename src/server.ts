@@ -64,7 +64,7 @@ router.post('/interactions', async (c) => {
         case commands.CONFIGURE_COMMAND.name.toLowerCase(): {
           if (
             interaction.member &&
-            interaction.member.roles.includes('1287260363556917330')
+            interaction.member.roles.includes('1345970875752517712')
           ) {
             const interactionData = interaction.data as discordJs.APIChatInputApplicationCommandInteractionData;
             const interactionOptions = interactionData.options!;
