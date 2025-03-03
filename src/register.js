@@ -1,7 +1,6 @@
 import * as commands from './commands.js';
 import dotenv from 'dotenv';
 import process from 'node:process';
-import { ApplicationRoleConnectionMetadataType } from 'discord-api-types/v10';
 
 /**
  * Registers role connection/command metadata with Discord - runs separately to the bot.
