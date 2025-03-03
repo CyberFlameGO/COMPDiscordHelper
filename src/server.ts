@@ -8,9 +8,37 @@ import {
 import * as commands from './commands.js';
 import * as discordJs from 'discord-api-types/v10';
 import { Bindings } from './worker-configuration.js';
+import { val } from 'cheerio/dist/commonjs/api/attributes.js';
 
 
 const router = new Hono<{ Bindings: Bindings }>();
+const discordApi = 'https://discord.com/api/v10';
+
+function getValueByKey(options: discordJs.APIApplicationCommandInteractionDataOption[], key: string) {
+  const value = options.find((opt) => opt.name === key);
+  if (value) {
+    if ('value' in value) {
+      return value.value as string | number;
+    }
+  }
+  return null;
+}
+
+async function createChannel(guildId: string, name: string, parentId: string, token: string) {
+  return fetch(`${discordApi}/guilds/${guildId}/channels`, {
+    method: 'POST',
+    headers:
+      {
+        'Authorization': `Bot ${token}`,
+        'Content-Type': 'application/json',
+      },
+    body: JSON.stringify({
+      name,
+      type: 0,
+      parent_id: parentId,
+    }),
+  })
+}
 
 // eslint-disable-next-line no-unused-vars
 router.post('/interactions', async (c) => {
@@ -36,23 +64,17 @@ router.post('/interactions', async (c) => {
         case commands.CONFIGURE_COMMAND.name.toLowerCase(): {
           if (
             interaction.member &&
-            interaction.member.roles.includes('SPECIFIC_ROLE_ID')
+            interaction.member.roles.includes('1287260363556917330')
           ) {
             const interactionData = interaction.data as discordJs.APIChatInputApplicationCommandInteractionData;
             const interactionOptions = interactionData.options!;
-            const courseCode = interactionOptions.find(
-              (opt) => opt.name === 'course_code'
-            );
-            const roleId = interactionOptions.find(
-              (opt) => opt.name === 'role_id'
-            ) as discordJs.APIApplicationCommandInteractionDataNumberOption;
-            const courseName = interactionOptions.find(
-              (opt) => opt.name === 'course_name'
-            );
+            const courseCode = getValueByKey(interactionOptions, "course_code") as string;
+            const roleId = getValueByKey(interactionOptions, "role_id");
+            const courseName = getValueByKey(interactionOptions, "course_name");
 
             if (courseCode && roleId && courseName) {
               await c.env.DISCORD_DATA.put(
-                `course_${courseCode}`,
+                `course_${courseCode.toUpperCase()}`,
                 JSON.stringify({ roleId, courseName })
               );
               return c.json({
@@ -76,16 +98,21 @@ router.post('/interactions', async (c) => {
 
         case commands.JOIN_COMMAND.name.toLowerCase(): {
           const interactionData = interaction.data as discordJs.APIChatInputApplicationCommandInteractionData;
-          const courseCode = interactionData.options!.find(
-            (opt) => opt.name === 'course_code'
-          );
+          const courseCode = getValueByKey(interactionData.options!, "course_code") as string;
 
           if (courseCode) {
             const courseData = await c.env.DISCORD_DATA.get(
-              `course_${courseCode}`
+              `course_${courseCode.toUpperCase()}`
             );
             if (courseData) {
               const { roleId } = JSON.parse(courseData);
+              await fetch(`${discordApi}/guilds/${interaction.guild_id}/members/${interaction.member!.user.id}/roles/${roleId}`, {
+                method: 'PUT',
+                headers: {
+                  'Authorization': `Bot ${c.env.DISCORD_TOKEN}`,
+                  'Content-Type': 'application/json',
+                },
+              });
               return c.json({
                 type: InteractionResponseType.CHANNEL_MESSAGE_WITH_SOURCE,
                 data: {
@@ -121,22 +148,42 @@ router.post('/interactions', async (c) => {
 
         case commands.GENERATE_COMMAND.name.toLowerCase(): {
           const interactionData = interaction.data as discordJs.APIChatInputApplicationCommandInteractionData;
-          const name = interactionData.options!.find(
-            (opt) => opt.name === 'name'
-          );
+          const name = getValueByKey(interactionData.options!, "name");
 
           if (name) {
-            const category = await c.env.DISCORD_DATA.put(
-              `category_${name}`,
-              JSON.stringify({ name })
-            );
+            const guildId = interaction.guild_id!;
+            const category = await fetch(`${discordApi}/guilds/${guildId}/channels`, {
+              method: 'POST',
+              headers: {
+                'Authorization': `Bot ${c.env.DISCORD_TOKEN}`,
+                'Content-Type': 'application/json',
+              },
+              body: JSON.stringify({
+                name,
+                type: 4,
+              }),
+            });
 
-            for (let i = 1; i <= 3; i++) {
-              await c.env.DISCORD_DATA.put(
-                `channel_${name}-${i}`,
-                JSON.stringify({ name: `${name}-${i}` })
-              );
+            if (category.ok) {
+              const categoryData = await category.json() as { id: string };
+              const categoryId = categoryData.id;
+              const channels = await Promise.all([
+                createChannel(guildId, `${name}-core`, categoryId, c.env.DISCORD_TOKEN),
+                createChannel(guildId, `${name}-completion`, categoryId, c.env.DISCORD_TOKEN),
+                createChannel(guildId, `${name}-challenge`, categoryId, c.env.DISCORD_TOKEN),
+              ]);
+
+              if (channels.every((channel) => channel.ok)) {
+                return c.json({
+                  type: InteractionResponseType.CHANNEL_MESSAGE_WITH_SOURCE,
+                  data: {
+                    content: `Category ${name} with channels ${name}-1, ${name}-2, and ${name}-3 created successfully.`,
+                    flags: InteractionResponseFlags.EPHEMERAL,
+                  },
+                });
+              }
             }
+
 
             return c.json({
               type: InteractionResponseType.CHANNEL_MESSAGE_WITH_SOURCE,
@@ -159,6 +206,33 @@ router.post('/interactions', async (c) => {
         default:
           return c.json({ error: 'Unknown Type' }, { status: 400 });
       }
+    }
+
+    case discordJs.InteractionType.ApplicationCommandAutocomplete: {
+      // Returns autocomplete for focused field of the join command
+      const interactionData = interaction.data as discordJs.APIChatInputApplicationCommandInteractionData;
+      const commandName = interactionData.name.toLowerCase();
+      const options = interactionData.options!;
+      // Check if the parameter is course_code in the join command
+      if (commandName === commands.JOIN_COMMAND.name.toLowerCase()) {
+        // Get course code as a full object instead of just the value
+        const courseCode = options.find((opt) => opt.name === 'course_code') as discordJs.APIApplicationCommandInteractionDataStringOption;
+        if (courseCode && courseCode.focused) {
+          const courses = await c.env.DISCORD_DATA.list({ prefix: 'course_' });
+          // Get the course codes from the list of courses, from what the user has entered so far via .value
+          const courseOptions = courses.keys
+            .map((course) => JSON.parse(course.name.split('_')[1]))
+            .filter((course) => course.startsWith(courseCode.value))
+            .map((course) => ({ name: course, value: course }));
+          return c.json({
+            type: InteractionResponseType.APPLICATION_COMMAND_AUTOCOMPLETE_RESULT,
+            data: {
+              choices: courseOptions,
+            },
+          });
+        }
+      }
+
     }
   }
 

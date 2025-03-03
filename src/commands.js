@@ -15,7 +15,6 @@ export const CONFIGURE_COMMAND = {
       type: ApplicationCommandOptionType.String,
       name: 'course_code',
       description: 'Course code to configure',
-      autocomplete: true,
       required: true,
     },
     {
@@ -41,6 +40,7 @@ export const JOIN_COMMAND = {
       type: ApplicationCommandOptionType.String,
       name: 'course_code',
       description: 'Course code to join',
+      autocomplete: true,
       required: true,
     },
   ],
