@@ -24,7 +24,7 @@ function getValueByKey(options: discordJs.APIApplicationCommandInteractionDataOp
   return null;
 }
 
-async function createChannel(guildId: string, name: string, parentId: string, token: string) {
+async function createChannel(guildId: string, name: string, parentId: string, topic: string, token: string) {
   return fetch(`${discordApi}/guilds/${guildId}/channels`, {
     method: 'POST',
     headers:
@@ -34,6 +34,7 @@ async function createChannel(guildId: string, name: string, parentId: string, to
       },
     body: JSON.stringify({
       name,
+      topic: topic,
       type: 0,
       parent_id: parentId,
     }),
@@ -171,6 +172,20 @@ router.post('/interactions', async (c) => {
               },
               body: JSON.stringify({
                 name,
+                permission_overwrites: [
+                  {
+                    id: getValueByKey(interactionData.options!, "roleId"),
+                    type: 0,
+                    allow: 515396455488,
+                    deny: 0,
+                  },
+                  {
+                    id: guildId,
+                    type: 0,
+                    allow: 0,
+                    deny: 515396455488,
+                  },
+                ],
                 type: 4,
               }),
             });
@@ -179,9 +194,9 @@ router.post('/interactions', async (c) => {
               const categoryData = await category.json() as { id: string };
               const categoryId = categoryData.id;
               const channels = await Promise.all([
-                createChannel(guildId, `${name}-core`, categoryId, c.env.DISCORD_TOKEN),
-                createChannel(guildId, `${name}-completion`, categoryId, c.env.DISCORD_TOKEN),
-                createChannel(guildId, `${name}-challenge`, categoryId, c.env.DISCORD_TOKEN),
+                createChannel(guildId, `${name}-core`, categoryId, "For the core portion of the assignment", c.env.DISCORD_TOKEN),
+                createChannel(guildId, `${name}-completion`, categoryId,"For the completion portion of the assignment", c.env.DISCORD_TOKEN),
+                createChannel(guildId, `${name}-challenge`, categoryId,"For the challenge portion of the assignment", c.env.DISCORD_TOKEN),
               ]);
 
               if (channels.every((channel) => channel.ok)) {

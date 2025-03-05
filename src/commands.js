@@ -46,11 +46,6 @@ export const JOIN_COMMAND = {
   ],
 };
 
-export const TEST_COMMAND = {
-  name: 'test',
-  description: 'This command serves no purpose.',
-};
-
 export const PING_COMMAND = {
   name: 'ping',
   description: 'Check latency stats of the bot.',
@@ -66,6 +61,12 @@ export const GENERATE_COMMAND = {
       type: ApplicationCommandOptionType.String,
       name: 'name',
       description: 'Name for the category and channel name prefix',
+      required: true,
+    },
+    {
+      type: ApplicationCommandOptionType.Channel,
+      name: 'roleId',
+      description: 'Role ID to assign permissions to the category for',
       required: true,
     },
   ],
