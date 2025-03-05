@@ -149,7 +149,7 @@ router.post('/interactions', async (c) => {
 
         case commands.GENERATE_COMMAND.name.toLowerCase(): {
           if (!interaction.member ||
-          !interaction.member.roles.includes('1287260363556917330')) {
+          !interaction.member.roles.includes('1340543049716990054')) {
             return c.json({
               type: InteractionResponseType.CHANNEL_MESSAGE_WITH_SOURCE,
               data: {
