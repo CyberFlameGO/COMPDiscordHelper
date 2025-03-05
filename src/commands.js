@@ -64,7 +64,7 @@ export const GENERATE_COMMAND = {
       required: true,
     },
     {
-      type: ApplicationCommandOptionType.Channel,
+      type: ApplicationCommandOptionType.String,
       name: 'role_id',
       description: 'Role ID to assign permissions to the category for',
       required: true,
