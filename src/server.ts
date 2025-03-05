@@ -174,7 +174,7 @@ router.post('/interactions', async (c) => {
                 name,
                 permission_overwrites: [
                   {
-                    id: getValueByKey(interactionData.options!, "roleId"),
+                    id: getValueByKey(interactionData.options!, "role_id"),
                     type: 0,
                     allow: 515396455488,
                     deny: 0,
