@@ -195,8 +195,6 @@ router.post('/interactions', async (c) => {
               const categoryId = categoryData.id;
               const channels = await Promise.all([
                 createChannel(guildId, `${name}-core`, categoryId, "For the core portion of the assignment", c.env.DISCORD_TOKEN),
-                createChannel(guildId, `${name}-completion`, categoryId,"For the completion portion of the assignment", c.env.DISCORD_TOKEN),
-                createChannel(guildId, `${name}-challenge`, categoryId,"For the challenge portion of the assignment", c.env.DISCORD_TOKEN),
               ]);
 
               if (channels.every((channel) => channel.ok)) {
