@@ -45,6 +45,6 @@
     "prettier": "^3.5.2",
     "sinon": "^19.0.2",
     "typescript": "^5.8.2",
-    "wrangler": "^3.111.0"
+    "wrangler": "^4.1.0"
   }
 }
