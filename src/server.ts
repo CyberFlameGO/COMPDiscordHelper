@@ -107,25 +107,6 @@ router.post('/interactions', async (c) => {
             );
             if (courseData) {
               const { roleId } = JSON.parse(courseData);
-              // Check if user already has the role
-              const memberRes = await fetch(`${discordApi}/guilds/${interaction.guild_id}/members/${interaction.member!.user.id}`, {
-                headers: {
-                  'Authorization': `Bot ${c.env.DISCORD_TOKEN}`,
-                  'Content-Type': 'application/json',
-                },
-              });
-              if (memberRes.ok) {
-                const member = await memberRes.json() as { roles: string[] };
-                if (member.roles && member.roles.includes(roleId)) {
-                  return c.json({
-                    type: InteractionResponseType.CHANNEL_MESSAGE_WITH_SOURCE,
-                    data: {
-                      content: `You already have the role for course ${courseCode}.`,
-                      flags: InteractionResponseFlags.EPHEMERAL,
-                    },
-                  });
-                }
-              }
               await fetch(`${discordApi}/guilds/${interaction.guild_id}/members/${interaction.member!.user.id}/roles/${roleId}`, {
                 method: 'PUT',
                 headers: {
@@ -137,62 +118,6 @@ router.post('/interactions', async (c) => {
                 type: InteractionResponseType.CHANNEL_MESSAGE_WITH_SOURCE,
                 data: {
                   content: `You have been assigned the role for course ${courseCode}.`,
-                  allowed_mentions: {
-                    roles: [roleId],
-                  },
-                },
-              });
-            }
-          }
-          return c.json({
-            type: InteractionResponseType.CHANNEL_MESSAGE_WITH_SOURCE,
-            data: {
-              content: `Course ${courseCode} not found.`,
-              flags: InteractionResponseFlags.EPHEMERAL,
-            },
-          });
-        }
-
-        case commands.LEAVE_COMMAND.name.toLowerCase(): {
-          const interactionData = interaction.data as discordJs.APIChatInputApplicationCommandInteractionData;
-          const courseCode = getValueByKey(interactionData.options!, "course_code") as string;
-
-          if (courseCode) {
-            const courseData = await c.env.DISCORD_DATA.get(
-              `course_${courseCode.toUpperCase()}`
-            );
-            if (courseData) {
-              const { roleId } = JSON.parse(courseData);
-              // Check if user has the role before removing
-              const memberRes = await fetch(`${discordApi}/guilds/${interaction.guild_id}/members/${interaction.member!.user.id}`, {
-                headers: {
-                  'Authorization': `Bot ${c.env.DISCORD_TOKEN}`,
-                  'Content-Type': 'application/json',
-                },
-              });
-              if (memberRes.ok) {
-                const member = await memberRes.json() as { roles: string[] };
-                if (!member.roles || !member.roles.includes(roleId)) {
-                  return c.json({
-                    type: InteractionResponseType.CHANNEL_MESSAGE_WITH_SOURCE,
-                    data: {
-                      content: `You do not have the role for course ${courseCode}.`,
-                      flags: InteractionResponseFlags.EPHEMERAL,
-                    },
-                  });
-                }
-              }
-              await fetch(`${discordApi}/guilds/${interaction.guild_id}/members/${interaction.member!.user.id}/roles/${roleId}`, {
-                method: 'DELETE',
-                headers: {
-                  'Authorization': `Bot ${c.env.DISCORD_TOKEN}`,
-                  'Content-Type': 'application/json',
-                },
-              });
-              return c.json({
-                type: InteractionResponseType.CHANNEL_MESSAGE_WITH_SOURCE,
-                data: {
-                  content: `You have been removed from the role for course ${courseCode}.`,
                   allowed_mentions: {
                     roles: [roleId],
                   },
@@ -308,64 +233,22 @@ router.post('/interactions', async (c) => {
     }
 
     case discordJs.InteractionType.ApplicationCommandAutocomplete: {
-      // Returns autocomplete for focused field of the join/leave command
+      // Returns autocomplete for focused field of the join command
       const interactionData = interaction.data as discordJs.APIChatInputApplicationCommandInteractionData;
       const commandName = interactionData.name.toLowerCase();
       const options = interactionData.options!;
-      // Autocomplete for join command
+      // Check if the parameter is course_code in the join command
       if (commandName === commands.JOIN_COMMAND.name.toLowerCase()) {
+        // Get course code as a full object instead of just the value
         const courseCode = options.find((opt) => opt.name === 'course_code') as discordJs.APIApplicationCommandInteractionDataStringOption;
         if (courseCode && courseCode.focused) {
           const courses = await c.env.DISCORD_DATA.list({ prefix: 'course_' });
+          // Get the course codes from the list of courses, from what the user has entered so far via .value
           const courseOptions = courses.keys
-            .map((course) => course.name.split('_')[1])
-            .filter((course) => course.startsWith(courseCode.value.toUpperCase()))
-            .map((course) => ({ name: course, value: course }));
-          return c.json({
-            type: InteractionResponseType.APPLICATION_COMMAND_AUTOCOMPLETE_RESULT,
-            data: {
-              choices: courseOptions,
-            },
-          });
-        }
-      }
-      // Autocomplete for leave command (removing roles)
-      if (commandName === commands.LEAVE_COMMAND.name.toLowerCase()) {
-        const courseCode = options.find((opt) => opt.name === 'course_code') as discordJs.APIApplicationCommandInteractionDataStringOption;
-        if (courseCode && courseCode.focused) {
-          // Only suggest courses the user has roles for
-          const courses = await c.env.DISCORD_DATA.list({ prefix: 'course_' });
-          // Fetch member roles
-          const memberRes = await fetch(`${discordApi}/guilds/${interaction.guild_id}/members/${interaction.member!.user.id}`, {
-            headers: {
-              'Authorization': `Bot ${c.env.DISCORD_TOKEN}`,
-              'Content-Type': 'application/json',
-            },
-          });
-          let userRoles: string[] = [];
-          if (memberRes.ok) {
-            const member = await memberRes.json() as { roles: string[] };
-            userRoles = member.roles || [];
-          }
-          const courseOptions = courses.keys
-            .map((course) => course.name.split('_')[1])
-            .filter((course) => {
-              const courseData = courses.keys.find((k) => k.name.endsWith(`_${course}`));
-              if (!courseData) return false;
-              try {
-                // courseData.metadata is not guaranteed, so fallback to fetching from storage
-                // Instead, fetch the value from storage synchronously (not ideal, but for autocomplete, we can use the key)
-                // But since we have only the key, and not the value, we can't parse roleId here. Instead, suggest all courses for which the user has a role
-                // So, we can filter by userRoles containing any roleId from the course keys
-                // But since we don't have the value, we can't get roleId, so fallback to suggesting all courses
-                // To improve, we should fetch all course values, but that's not possible here. So, just return all courses the user has any role for
-                // This is a limitation of the current autocomplete implementation
-                return course.startsWith(courseCode.value.toUpperCase());
-              } catch {
-                return false;
-              }
-            })
-            .map((course) => ({ name: course, value: course }));
+          .map((course) => course.name.split('_')[1])
+          .filter((course) => course.startsWith(courseCode.value.toUpperCase()))
+          .map((course) => ({ name: course, value: course }));
+          
           return c.json({
             type: InteractionResponseType.APPLICATION_COMMAND_AUTOCOMPLETE_RESULT,
             data: {
