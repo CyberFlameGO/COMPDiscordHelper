@@ -7,7 +7,7 @@ send_metrics = true
 minify = true
 
 routes = [
-  { pattern = "vuwtechbot.discord.deez.ing", custom_domain = true }
+  { pattern = "vuwtechbot.workers.deez.ing", custom_domain = true }
 ]
 
 [placement]
