@@ -107,6 +107,25 @@ router.post('/interactions', async (c) => {
             );
             if (courseData) {
               const { roleId } = JSON.parse(courseData);
+              // Check if user already has the role
+              const memberRes = await fetch(`${discordApi}/guilds/${interaction.guild_id}/members/${interaction.member!.user.id}`, {
+                headers: {
+                  'Authorization': `Bot ${c.env.DISCORD_TOKEN}`,
+                  'Content-Type': 'application/json',
+                },
+              });
+              if (memberRes.ok) {
+                const member = await memberRes.json() as { roles: string[] };
+                if (member.roles && member.roles.includes(roleId)) {
+                  return c.json({
+                    type: InteractionResponseType.CHANNEL_MESSAGE_WITH_SOURCE,
+                    data: {
+                      content: `You already have the role for course ${courseCode}.`,
+                      flags: InteractionResponseFlags.EPHEMERAL,
+                    },
+                  });
+                }
+              }
               await fetch(`${discordApi}/guilds/${interaction.guild_id}/members/${interaction.member!.user.id}/roles/${roleId}`, {
                 method: 'PUT',
                 headers: {
@@ -118,6 +137,62 @@ router.post('/interactions', async (c) => {
                 type: InteractionResponseType.CHANNEL_MESSAGE_WITH_SOURCE,
                 data: {
                   content: `You have been assigned the role for course ${courseCode}.`,
+                  allowed_mentions: {
+                    roles: [roleId],
+                  },
+                },
+              });
+            }
+          }
+          return c.json({
+            type: InteractionResponseType.CHANNEL_MESSAGE_WITH_SOURCE,
+            data: {
+              content: `Course ${courseCode} not found.`,
+              flags: InteractionResponseFlags.EPHEMERAL,
+            },
+          });
+        }
+
+        case commands.LEAVE_COMMAND.name.toLowerCase(): {
+          const interactionData = interaction.data as discordJs.APIChatInputApplicationCommandInteractionData;
+          const courseCode = getValueByKey(interactionData.options!, "course_code") as string;
+
+          if (courseCode) {
+            const courseData = await c.env.DISCORD_DATA.get(
+              `course_${courseCode.toUpperCase()}`
+            );
+            if (courseData) {
+              const { roleId } = JSON.parse(courseData);
+              // Check if user has the role before removing
+              const memberRes = await fetch(`${discordApi}/guilds/${interaction.guild_id}/members/${interaction.member!.user.id}`, {
+                headers: {
+                  'Authorization': `Bot ${c.env.DISCORD_TOKEN}`,
+                  'Content-Type': 'application/json',
+                },
+              });
+              if (memberRes.ok) {
+                const member = await memberRes.json() as { roles: string[] };
+                if (!member.roles || !member.roles.includes(roleId)) {
+                  return c.json({
+                    type: InteractionResponseType.CHANNEL_MESSAGE_WITH_SOURCE,
+                    data: {
+                      content: `You do not have the role for course ${courseCode}.`,
+                      flags: InteractionResponseFlags.EPHEMERAL,
+                    },
+                  });
+                }
+              }
+              await fetch(`${discordApi}/guilds/${interaction.guild_id}/members/${interaction.member!.user.id}/roles/${roleId}`, {
+                method: 'DELETE',
+                headers: {
+                  'Authorization': `Bot ${c.env.DISCORD_TOKEN}`,
+                  'Content-Type': 'application/json',
+                },
+              });
+              return c.json({
+                type: InteractionResponseType.CHANNEL_MESSAGE_WITH_SOURCE,
+                data: {
+                  content: `You have been removed from the role for course ${courseCode}.`,
                   allowed_mentions: {
                     roles: [roleId],
                   },
@@ -233,26 +308,62 @@ router.post('/interactions', async (c) => {
     }
 
     case discordJs.InteractionType.ApplicationCommandAutocomplete: {
-      // Returns autocomplete for focused field of the join command
+      // Returns autocomplete for focused field of the join/leave command
       const interactionData = interaction.data as discordJs.APIChatInputApplicationCommandInteractionData;
       const commandName = interactionData.name.toLowerCase();
       const options = interactionData.options!;
-      // Check if the parameter is course_code in the join command
+      // Autocomplete for join command
       if (commandName === commands.JOIN_COMMAND.name.toLowerCase()) {
-        // Get course code as a full object instead of just the value
         const courseCode = options.find((opt) => opt.name === 'course_code') as discordJs.APIApplicationCommandInteractionDataStringOption;
         if (courseCode && courseCode.focused) {
           const courses = await c.env.DISCORD_DATA.list({ prefix: 'course_' });
-          // Get the course codes from the list of courses, from what the user has entered so far via .value
           const courseOptions = courses.keys
-          .map((course) => course.name.split('_')[1])
-          .filter((course) => course.startsWith(courseCode.value.toUpperCase()))
-          .map((course) => ({ name: course, value: course }));
-          
+            .map((course) => course.name.split('_')[1])
+            .filter((course) => course.startsWith(courseCode.value.toUpperCase()))
+            .map((course) => ({ name: course, value: course }));
           return c.json({
             type: InteractionResponseType.APPLICATION_COMMAND_AUTOCOMPLETE_RESULT,
             data: {
               choices: courseOptions,
+            },
+          });
+        }
+      }
+      // Autocomplete for leave command (removing roles)
+      if (commandName === commands.LEAVE_COMMAND.name.toLowerCase()) {
+        const courseCode = options.find((opt) => opt.name === 'course_code') as discordJs.APIApplicationCommandInteractionDataStringOption;
+        if (courseCode && courseCode.focused) {
+          const courses = await c.env.DISCORD_DATA.list({ prefix: 'course_' });
+          // Fetch member roles
+          const memberRes = await fetch(`${discordApi}/guilds/${interaction.guild_id}/members/${interaction.member!.user.id}`, {
+            headers: {
+              'Authorization': `Bot ${c.env.DISCORD_TOKEN}`,
+              'Content-Type': 'application/json',
+            },
+          });
+          let userRoles: string[] = [];
+          if (memberRes.ok) {
+            const member = await memberRes.json() as { roles: string[] };
+            userRoles = member.roles || [];
+          }
+          // For each course, fetch its value and check if user has the role
+          const filteredCourses: { name: string, value: string }[] = [];
+          for (const course of courses.keys) {
+            const code = course.name.split('_')[1];
+            if (!code.startsWith(courseCode.value.toUpperCase())) continue;
+            const value = await c.env.DISCORD_DATA.get(course.name);
+            if (!value) continue;
+            try {
+              const { roleId } = JSON.parse(value);
+              if (userRoles.includes(roleId)) {
+                filteredCourses.push({ name: code, value: code });
+              }
+            } catch {}
+          }
+          return c.json({
+            type: InteractionResponseType.APPLICATION_COMMAND_AUTOCOMPLETE_RESULT,
+            data: {
+              choices: filteredCourses,
             },
           });
         }

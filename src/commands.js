@@ -54,6 +54,7 @@ export const LEAVE_COMMAND = {
       type: ApplicationCommandOptionType.String,
       name: 'course_code',
       description: 'Course code to leave',
+      autocomplete: true,
       required: true,
     },
   ],
