@@ -46,6 +46,19 @@ export const JOIN_COMMAND = {
   ],
 };
 
+export const LEAVE_COMMAND = {
+  name: 'leave',
+  description: 'Leave a course by course code.',
+  options: [
+    {
+      type: ApplicationCommandOptionType.String,
+      name: 'course_code',
+      description: 'Course code to leave',
+      required: true,
+    },
+  ],
+};
+
 export const PING_COMMAND = {
   name: 'ping',
   description: 'Check latency stats of the bot.',
