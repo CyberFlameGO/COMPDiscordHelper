@@ -1,6 +1,6 @@
 name = "compserverhelper"
 main = "./src/server.ts"
-compatibility_date="2025-01-23"
+compatibility_date="2025-06-27"
 
 account_id= "4ed1f8e12cda519236361f09dd8956cf"
 send_metrics = true
