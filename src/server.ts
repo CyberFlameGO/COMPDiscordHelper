@@ -451,14 +451,26 @@ router.post('/interactions', async (c) => {
         const courseCode = options.find((opt) => opt.name === 'course_code') as discordJs.APIApplicationCommandInteractionDataStringOption;
         if (courseCode && courseCode.focused) {
           const courses = await c.env.DISCORD_DATA.list({ prefix: 'course_' });
-          const courseOptions = courses.keys
-            .map((course) => course.name.split('_')[1])
-            .filter((course) => course.startsWith(courseCode.value.toUpperCase()))
-            .map((course) => ({ name: course, value: course }));
+          // Fetch course names from storage
+          const courseOptions = await Promise.all(
+            courses.keys
+              .map(async (course) => {
+                const code = course.name.split('_')[1];
+                if (!code.startsWith(courseCode.value.toUpperCase())) return null;
+                const value = await c.env.DISCORD_DATA.get(course.name);
+                if (!value) return null;
+                try {
+                  const { courseName } = JSON.parse(value);
+                  return { name: `${code} — ${courseName}`, value: code };
+                } catch {
+                  return { name: code, value: code };
+                }
+              })
+          );
           return c.json({
             type: InteractionResponseType.APPLICATION_COMMAND_AUTOCOMPLETE_RESULT,
             data: {
-              choices: courseOptions,
+              choices: courseOptions.filter(Boolean),
             },
           });
         }
@@ -488,11 +500,14 @@ router.post('/interactions', async (c) => {
             const value = await c.env.DISCORD_DATA.get(course.name);
             if (!value) continue;
             try {
-              const { roleId } = JSON.parse(value);
+              const { roleId, courseName } = JSON.parse(value);
               if (userRoles.includes(roleId)) {
-                filteredCourses.push({ name: code, value: code });
+                filteredCourses.push({ name: `${code} — ${courseName}`, value: code });
               }
-            } catch {}
+            } catch {
+              // fallback to code only
+              filteredCourses.push({ name: code, value: code });
+            }
           }
           return c.json({
             type: InteractionResponseType.APPLICATION_COMMAND_AUTOCOMPLETE_RESULT,
