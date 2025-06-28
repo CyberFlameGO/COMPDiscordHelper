@@ -61,6 +61,28 @@ router.post('/interactions', async (c) => {
       switch (interaction.data.name.toLowerCase()) {
 
         case commands.CONFIGURE_COMMAND.name.toLowerCase(): {
+          // Permission bitfields
+          const PERMISSIONS = {
+            VIEW_CHANNEL: 1024,
+            SEND_MESSAGES: 2048,
+            READ_MESSAGE_HISTORY: 65536,
+            ATTACH_FILES: 32768,
+            EMBED_LINKS: 16384,
+            USE_APPLICATION_COMMANDS: 2147483648,
+            ADD_REACTIONS: 64,
+            USE_EXTERNAL_EMOJIS: 262144,
+            // Removed: MANAGE_THREADS: 17179869184, CREATE_EVENTS: 8589934592, MANAGE_EVENTS: 4398046511104
+          };
+
+          function buildCategoryAllow() {
+            let allow = PERMISSIONS.VIEW_CHANNEL | PERMISSIONS.SEND_MESSAGES | PERMISSIONS.READ_MESSAGE_HISTORY |
+              PERMISSIONS.ATTACH_FILES | PERMISSIONS.EMBED_LINKS | PERMISSIONS.USE_APPLICATION_COMMANDS |
+              PERMISSIONS.ADD_REACTIONS | PERMISSIONS.USE_EXTERNAL_EMOJIS;
+            // Remove unwanted permissions if present
+            allow = allow & ~17179869184 & ~8589934592 & ~4398046511104;
+            return allow;
+          }
+
           if (
             interaction.member &&
             interaction.member.roles.includes('1346386480788017163')
@@ -105,18 +127,13 @@ router.post('/interactions', async (c) => {
                 JSON.stringify({ roleId, courseName })
               );
 
-
-              const VIEW_CHANNEL = 1024;
-              const SEND_MESSAGES = 2048;
-              const USE_APPLICATION_COMMANDS = 2147483648;
-
-              let categoryAllowInt = 517543939136
+              const categoryAllowInt = buildCategoryAllow();
               const categoryAllow = categoryAllowInt.toString();
               const categoryOverwrites = [
                 {
                   id: guildId, // @everyone
                   type: 0,
-                  deny: VIEW_CHANNEL.toString(), // VIEW_CHANNEL
+                  deny: PERMISSIONS.VIEW_CHANNEL.toString(), // VIEW_CHANNEL
                 },
                 {
                   id: roleId,
@@ -152,17 +169,16 @@ router.post('/interactions', async (c) => {
               const category = await categoryRes.json() as { id: string };
               const categoryId = category.id;
 
-
               // Announcements channel: allow same as category minus SEND_MESSAGES and USE_APPLICATION_COMMANDS for the role, and explicitly deny those two
-              const announcementsAllowInt = categoryAllowInt & ~SEND_MESSAGES & ~USE_APPLICATION_COMMANDS;
+              const announcementsAllowInt = categoryAllowInt & ~PERMISSIONS.SEND_MESSAGES & ~PERMISSIONS.USE_APPLICATION_COMMANDS;
               const announcementsAllow = announcementsAllowInt.toString();
-              const announcementsDenyInt = SEND_MESSAGES | USE_APPLICATION_COMMANDS;
+              const announcementsDenyInt = PERMISSIONS.SEND_MESSAGES | PERMISSIONS.USE_APPLICATION_COMMANDS;
               const announcementsDeny = announcementsDenyInt.toString();
               const announcementsOverwrites = [
                 {
                   id: guildId, // @everyone
                   type: 0,
-                  deny: VIEW_CHANNEL.toString(),
+                  deny: PERMISSIONS.VIEW_CHANNEL.toString(),
                 },
                 {
                   id: roleId,
