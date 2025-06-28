@@ -65,22 +65,48 @@ router.post('/interactions', async (c) => {
         case commands.CONFIGURE_COMMAND.name.toLowerCase(): {
           if (
             interaction.member &&
-            interaction.member.roles.includes('1345970875752517712')
+            interaction.member.roles.includes('1346386480788017163')
           ) {
             const interactionData = interaction.data as discordJs.APIChatInputApplicationCommandInteractionData;
             const interactionOptions = interactionData.options!;
             const courseCode = getValueByKey(interactionOptions, "course_code") as string;
-            const roleId = getValueByKey(interactionOptions, "role_id") as string;
             const courseName = getValueByKey(interactionOptions, "course_name") as string;
 
-            if (courseCode && roleId && courseName) {
+            if (courseCode && courseName) {
+              // Create a new role for the course
+              const guildId = interaction.guild_id!;
+              const roleRes = await fetch(`${discordApi}/guilds/${guildId}/roles`, {
+                method: 'POST',
+                headers: {
+                  'Authorization': `Bot ${c.env.DISCORD_TOKEN}`,
+                  'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                  name: `${courseCode.toUpperCase()} - ${courseName}`,
+                  mentionable: true,
+                  hoist: false,
+                }),
+              });
+
+              if (!roleRes.ok) {
+                return c.json({
+                  type: InteractionResponseType.CHANNEL_MESSAGE_WITH_SOURCE,
+                  data: {
+                    content: `Failed to create role for course ${courseCode}.`,
+                    flags: InteractionResponseFlags.EPHEMERAL,
+                  },
+                });
+              }
+
+              const role = await roleRes.json() as { id: string };
+              const roleId = role.id;
+
               await c.env.DISCORD_DATA.put(
                 `course_${courseCode.toUpperCase()}`,
                 JSON.stringify({ roleId, courseName })
               );
 
               // Create category locked to the role
-              const guildId = interaction.guild_id!;
               const categoryRes = await fetch(`${discordApi}/guilds/${guildId}/channels`, {
                 method: 'POST',
                 headers: {
@@ -126,7 +152,7 @@ router.post('/interactions', async (c) => {
                   'Content-Type': 'application/json',
                 },
                 body: JSON.stringify({
-                  name: 'announcements',
+                  name: `${courseCode.toUpperCase()}-announcements`,
                   type: 0, // Text channel
                   parent_id: categoryId,
                   topic: `Announcements for ${courseCode.toUpperCase()} - ${courseName}`,
@@ -148,7 +174,7 @@ router.post('/interactions', async (c) => {
                   'Content-Type': 'application/json',
                 },
                 body: JSON.stringify({
-                  name: 'general',
+                  name: `${courseCode.toUpperCase()}-general`,
                   type: 0, // Text channel
                   parent_id: categoryId,
                   topic: `General discussion for ${courseCode.toUpperCase()} - ${courseName}`,
@@ -159,16 +185,14 @@ router.post('/interactions', async (c) => {
                 return c.json({
                   type: InteractionResponseType.CHANNEL_MESSAGE_WITH_SOURCE,
                   data: {
-                    content: `Course ${courseCode} configured and channels created successfully.`,
-                    flags: InteractionResponseFlags.EPHEMERAL,
+                    content: `Course ${courseCode} configured, role and channels created successfully.`,
                   },
                 });
               } else {
                 return c.json({
                   type: InteractionResponseType.CHANNEL_MESSAGE_WITH_SOURCE,
                   data: {
-                    content: `Course ${courseCode} configured, but failed to create one or more channels.`,
-                    flags: InteractionResponseFlags.EPHEMERAL,
+                    content: `Course ${courseCode} configured and role created, but failed to create one or more channels.`,
                   },
                 });
               }

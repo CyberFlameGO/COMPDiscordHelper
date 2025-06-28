@@ -19,12 +19,6 @@ export const CONFIGURE_COMMAND = {
     },
     {
       type: ApplicationCommandOptionType.String,
-      name: 'role_id',
-      description: 'Role ID to assign',
-      required: true,
-    },
-    {
-      type: ApplicationCommandOptionType.String,
       name: 'course_name',
       description: 'Course name for auto-complete',
       required: true,
