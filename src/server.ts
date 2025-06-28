@@ -70,7 +70,7 @@ router.post('/interactions', async (c) => {
 
           if (
             interaction.member &&
-            interaction.member.roles.includes('1346386480788017163')
+            interaction.member.roles.includes('1287260363556917330')
           ) {
             const interactionData = interaction.data as discordJs.APIChatInputApplicationCommandInteractionData;
             const interactionOptions = interactionData.options!;
