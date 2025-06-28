@@ -1,5 +1,4 @@
 import { Hono } from 'hono';
-import { getSignedCookie, setSignedCookie } from 'hono/cookie';
 import {
   InteractionResponseType,
   InteractionResponseFlags,
@@ -8,7 +7,6 @@ import {
 import * as commands from './commands.js';
 import * as discordJs from 'discord-api-types/v10';
 import { Bindings } from './worker-configuration.js';
-import { val } from 'cheerio/dist/commonjs/api/attributes.js';
 
 
 const router = new Hono<{ Bindings: Bindings }>();
@@ -73,7 +71,7 @@ router.post('/interactions', async (c) => {
             const courseName = getValueByKey(interactionOptions, "course_name") as string;
 
             if (courseCode && courseName) {
-              // Create a new role for the course
+              // Create a new role for the course (no permissions)
               const guildId = interaction.guild_id!;
               const roleRes = await fetch(`${discordApi}/guilds/${guildId}/roles`, {
                 method: 'POST',
@@ -82,9 +80,10 @@ router.post('/interactions', async (c) => {
                   'Content-Type': 'application/json',
                 },
                 body: JSON.stringify({
-                  name: `${courseCode.toUpperCase()} - ${courseName}`,
+                  name: `${courseCode.toUpperCase()}`,
                   mentionable: true,
                   hoist: false,
+                  permissions: "0"
                 }),
               });
 
@@ -106,6 +105,26 @@ router.post('/interactions', async (c) => {
                 JSON.stringify({ roleId, courseName })
               );
 
+
+              const VIEW_CHANNEL = 1024;
+              const SEND_MESSAGES = 2048;
+              const USE_APPLICATION_COMMANDS = 2147483648;
+
+              let categoryAllowInt = 517543939136
+              const categoryAllow = categoryAllowInt.toString();
+              const categoryOverwrites = [
+                {
+                  id: guildId, // @everyone
+                  type: 0,
+                  deny: VIEW_CHANNEL.toString(), // VIEW_CHANNEL
+                },
+                {
+                  id: roleId,
+                  type: 0,
+                  allow: categoryAllow,
+                },
+              ];
+
               // Create category locked to the role
               const categoryRes = await fetch(`${discordApi}/guilds/${guildId}/channels`, {
                 method: 'POST',
@@ -114,20 +133,9 @@ router.post('/interactions', async (c) => {
                   'Content-Type': 'application/json',
                 },
                 body: JSON.stringify({
-                  name: `${courseCode.toUpperCase()}-${courseName}`,
+                  name: `${courseCode.toUpperCase()} — ${courseName}`,
                   type: 4, // Category
-                  permission_overwrites: [
-                    {
-                      id: guildId, // @everyone
-                      type: 0,
-                      deny: 1024, // VIEW_CHANNEL
-                    },
-                    {
-                      id: roleId,
-                      type: 0,
-                      allow: 1024, // VIEW_CHANNEL
-                    },
-                  ],
+                  permission_overwrites: categoryOverwrites,
                 }),
               });
 
@@ -144,7 +152,26 @@ router.post('/interactions', async (c) => {
               const category = await categoryRes.json() as { id: string };
               const categoryId = category.id;
 
-              // Create announcements channel (read-only for role, inherits view from category)
+
+              // Announcements channel: allow same as category minus SEND_MESSAGES and USE_APPLICATION_COMMANDS for the role, and explicitly deny those two
+              const announcementsAllowInt = categoryAllowInt & ~SEND_MESSAGES & ~USE_APPLICATION_COMMANDS;
+              const announcementsAllow = announcementsAllowInt.toString();
+              const announcementsDenyInt = SEND_MESSAGES | USE_APPLICATION_COMMANDS;
+              const announcementsDeny = announcementsDenyInt.toString();
+              const announcementsOverwrites = [
+                {
+                  id: guildId, // @everyone
+                  type: 0,
+                  deny: VIEW_CHANNEL.toString(),
+                },
+                {
+                  id: roleId,
+                  type: 0,
+                  allow: announcementsAllow,
+                  deny: announcementsDeny,
+                },
+              ];
+
               const announcementsRes = await fetch(`${discordApi}/guilds/${guildId}/channels`, {
                 method: 'POST',
                 headers: {
@@ -156,17 +183,11 @@ router.post('/interactions', async (c) => {
                   type: 0, // Text channel
                   parent_id: categoryId,
                   topic: `Announcements for ${courseCode.toUpperCase()} - ${courseName}`,
-                  permission_overwrites: [
-                    {
-                      id: roleId,
-                      type: 0,
-                      deny: 2048, // SEND_MESSAGES
-                    },
-                  ],
+                  permission_overwrites: announcementsOverwrites,
                 }),
               });
 
-              // Create general channel (discussion)
+              // General channel (discussion): inherit from category
               const generalRes = await fetch(`${discordApi}/guilds/${guildId}/channels`, {
                 method: 'POST',
                 headers: {
@@ -185,7 +206,7 @@ router.post('/interactions', async (c) => {
                 return c.json({
                   type: InteractionResponseType.CHANNEL_MESSAGE_WITH_SOURCE,
                   data: {
-                    content: `Course ${courseCode} configured, role and channels created successfully.`,
+                    content: `Course ${courseCode} configured; recorded in database, with role and associated category/channels created successfully.`,
                   },
                 });
               } else {
