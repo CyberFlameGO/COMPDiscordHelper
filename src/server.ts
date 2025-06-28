@@ -70,21 +70,108 @@ router.post('/interactions', async (c) => {
             const interactionData = interaction.data as discordJs.APIChatInputApplicationCommandInteractionData;
             const interactionOptions = interactionData.options!;
             const courseCode = getValueByKey(interactionOptions, "course_code") as string;
-            const roleId = getValueByKey(interactionOptions, "role_id");
-            const courseName = getValueByKey(interactionOptions, "course_name");
+            const roleId = getValueByKey(interactionOptions, "role_id") as string;
+            const courseName = getValueByKey(interactionOptions, "course_name") as string;
 
             if (courseCode && roleId && courseName) {
               await c.env.DISCORD_DATA.put(
                 `course_${courseCode.toUpperCase()}`,
                 JSON.stringify({ roleId, courseName })
               );
-              return c.json({
-                type: InteractionResponseType.CHANNEL_MESSAGE_WITH_SOURCE,
-                data: {
-                  content: `Course ${courseCode} configured successfully.`,
-                  flags: InteractionResponseFlags.EPHEMERAL,
+
+              // Create category locked to the role
+              const guildId = interaction.guild_id!;
+              const categoryRes = await fetch(`${discordApi}/guilds/${guildId}/channels`, {
+                method: 'POST',
+                headers: {
+                  'Authorization': `Bot ${c.env.DISCORD_TOKEN}`,
+                  'Content-Type': 'application/json',
                 },
+                body: JSON.stringify({
+                  name: `${courseCode.toUpperCase()}-${courseName}`,
+                  type: 4, // Category
+                  permission_overwrites: [
+                    {
+                      id: guildId, // @everyone
+                      type: 0,
+                      deny: 1024, // VIEW_CHANNEL
+                    },
+                    {
+                      id: roleId,
+                      type: 0,
+                      allow: 1024, // VIEW_CHANNEL
+                    },
+                  ],
+                }),
               });
+
+              if (!categoryRes.ok) {
+                return c.json({
+                  type: InteractionResponseType.CHANNEL_MESSAGE_WITH_SOURCE,
+                  data: {
+                    content: `Course ${courseCode} configured, but failed to create category.`,
+                    flags: InteractionResponseFlags.EPHEMERAL,
+                  },
+                });
+              }
+
+              const category = await categoryRes.json() as { id: string };
+              const categoryId = category.id;
+
+              // Create announcements channel (read-only for role, inherits view from category)
+              const announcementsRes = await fetch(`${discordApi}/guilds/${guildId}/channels`, {
+                method: 'POST',
+                headers: {
+                  'Authorization': `Bot ${c.env.DISCORD_TOKEN}`,
+                  'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                  name: 'announcements',
+                  type: 0, // Text channel
+                  parent_id: categoryId,
+                  topic: `Announcements for ${courseCode.toUpperCase()} - ${courseName}`,
+                  permission_overwrites: [
+                    {
+                      id: roleId,
+                      type: 0,
+                      deny: 2048, // SEND_MESSAGES
+                    },
+                  ],
+                }),
+              });
+
+              // Create general channel (discussion)
+              const generalRes = await fetch(`${discordApi}/guilds/${guildId}/channels`, {
+                method: 'POST',
+                headers: {
+                  'Authorization': `Bot ${c.env.DISCORD_TOKEN}`,
+                  'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                  name: 'general',
+                  type: 0, // Text channel
+                  parent_id: categoryId,
+                  topic: `General discussion for ${courseCode.toUpperCase()} - ${courseName}`,
+                }),
+              });
+
+              if (announcementsRes.ok && generalRes.ok) {
+                return c.json({
+                  type: InteractionResponseType.CHANNEL_MESSAGE_WITH_SOURCE,
+                  data: {
+                    content: `Course ${courseCode} configured and channels created successfully.`,
+                    flags: InteractionResponseFlags.EPHEMERAL,
+                  },
+                });
+              } else {
+                return c.json({
+                  type: InteractionResponseType.CHANNEL_MESSAGE_WITH_SOURCE,
+                  data: {
+                    content: `Course ${courseCode} configured, but failed to create one or more channels.`,
+                    flags: InteractionResponseFlags.EPHEMERAL,
+                  },
+                });
+              }
             }
           }
           return c.json({
