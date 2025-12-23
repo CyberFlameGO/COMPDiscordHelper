@@ -65,7 +65,7 @@ importers:
         version: 11.7.5
       pnpm:
         specifier: ^10.12.4
-        version: 10.26.1
+        version: 10.26.2
       prettier:
         specifier: ^3.6.2
         version: 3.7.4
@@ -1114,8 +1114,8 @@ packages:
   picocolors@1.1.1:
     resolution: {integrity: sha512-xceH2snhtb5M9liqDsmEw56le376mTZkEX/jEb/RxNFyegNul7eNslCXP9FDj/Lcu0X8KEyMceP2ntpaHrDEVA==}
 
-  pnpm@10.26.1:
-    resolution: {integrity: sha512-ZkB0q8Nn0skyT9wYA3CXzgqPEmA0Fg9wmSjp6fldmHFDRwROXDFk1lvV2mxZxr42KxB1Rikqjuy3mZGW5c5Y+g==}
+  pnpm@10.26.2:
+    resolution: {integrity: sha512-DjCP8gBfx0EDZvFU9iX2YxqysWsdLnAjhETdaunWMKhILZKkURRN68SSQWiW7Rb3sRSobsaLhASyRDhp5o/9pg==}
     engines: {node: '>=18.12'}
     hasBin: true
 
@@ -2294,7 +2294,7 @@ snapshots:
 
   picocolors@1.1.1: {}
 
-  pnpm@10.26.1: {}
+  pnpm@10.26.2: {}
 
   prelude-ls@1.2.1: {}
 
