@@ -455,7 +455,7 @@ router.post('/interactions', async (c) => {
           const courseOptions = await Promise.all(
             courses.keys
               .map(async (course) => {
-                const code = course.name.split('_')[1];
+                const code = course.name.split('_')[2];
                 if (!code.startsWith(courseCode.value.toUpperCase())) return null;
                 const value = await c.env.DISCORD_DATA.get(course.name);
                 if (!value) return null;
@@ -495,7 +495,7 @@ router.post('/interactions', async (c) => {
           // For each course, fetch its value and check if user has the role
           const filteredCourses: { name: string, value: string }[] = [];
           for (const course of courses.keys) {
-            const code = course.name.split('_')[1];
+            const code = course.name.split('_')[2];
             if (!code.startsWith(courseCode.value.toUpperCase())) continue;
             const value = await c.env.DISCORD_DATA.get(course.name);
             if (!value) continue;
