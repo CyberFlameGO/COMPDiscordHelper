@@ -108,7 +108,7 @@ router.post('/interactions', async (c) => {
               const roleId = role.id;
 
               await c.env.DISCORD_DATA.put(
-                `course_${courseCode.toUpperCase()}`,
+                `${guildId}_course_${courseCode.toUpperCase()}`,
                 JSON.stringify({ roleId, courseName })
               );
 
@@ -237,7 +237,7 @@ router.post('/interactions', async (c) => {
 
           if (courseCode) {
             const courseData = await c.env.DISCORD_DATA.get(
-              `course_${courseCode.toUpperCase()}`
+              `${interaction.guild_id}_course_${courseCode.toUpperCase()}`
             );
             if (courseData) {
               const { roleId } = JSON.parse(courseData);
@@ -450,7 +450,7 @@ router.post('/interactions', async (c) => {
       if (commandName === commands.JOIN_COMMAND.name.toLowerCase()) {
         const courseCode = options.find((opt) => opt.name === 'course_code') as discordJs.APIApplicationCommandInteractionDataStringOption;
         if (courseCode && courseCode.focused) {
-          const courses = await c.env.DISCORD_DATA.list({ prefix: 'course_' });
+          const courses = await c.env.DISCORD_DATA.list({ prefix: `${interaction.guild_id}_course_` });
           // Fetch course names from storage
           const courseOptions = await Promise.all(
             courses.keys
@@ -479,7 +479,7 @@ router.post('/interactions', async (c) => {
       if (commandName === commands.LEAVE_COMMAND.name.toLowerCase()) {
         const courseCode = options.find((opt) => opt.name === 'course_code') as discordJs.APIApplicationCommandInteractionDataStringOption;
         if (courseCode && courseCode.focused) {
-          const courses = await c.env.DISCORD_DATA.list({ prefix: 'course_' });
+          const courses = await c.env.DISCORD_DATA.list({ prefix: `${interaction.guild_id}_course_` });
           // Fetch member roles
           const memberRes = await fetch(`${discordApi}/guilds/${interaction.guild_id}/members/${interaction.member!.user.id}`, {
             headers: {
