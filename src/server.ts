@@ -412,7 +412,7 @@ router.post('/interactions', async (c) => {
                 return c.json({
                   type: InteractionResponseType.CHANNEL_MESSAGE_WITH_SOURCE,
                   data: {
-                    content: `Category ${name} with channels ${name}-1, ${name}-2, and ${name}-3 created successfully.`,
+                    content: `Category ${name} with channels ${name}-core, created successfully.`,
                     flags: InteractionResponseFlags.EPHEMERAL,
                   },
                 });
@@ -423,7 +423,7 @@ router.post('/interactions', async (c) => {
             return c.json({
               type: InteractionResponseType.CHANNEL_MESSAGE_WITH_SOURCE,
               data: {
-                content: `Category ${name} with channels ${name}-1, ${name}-2, and ${name}-3 created successfully.`,
+                content: `Category ${name} with channel ${name}-core, created successfully.`,
                 flags: InteractionResponseFlags.EPHEMERAL,
               },
             });
