@@ -67,10 +67,11 @@ router.post('/interactions', async (c) => {
           const VIEW_CHANNEL = 1024;
           const SEND_MESSAGES = 2048;
           const USE_APPLICATION_COMMANDS = 2147483648;
+          const ADMINISTRATOR = 8n;
 
           if (
             interaction.member &&
-            interaction.member.roles.includes('1345970875752517712')
+            (BigInt(interaction.member.permissions) & ADMINISTRATOR) === ADMINISTRATOR
           ) {
             const interactionData = interaction.data as discordJs.APIChatInputApplicationCommandInteractionData;
             const interactionOptions = interactionData.options!;
@@ -357,8 +358,9 @@ router.post('/interactions', async (c) => {
         }
 
         case commands.GENERATE_COMMAND.name.toLowerCase(): {
+          const MANAGE_NICKNAMES = 0x8000000n;
           if (!interaction.member ||
-          !interaction.member.roles.includes('1340543049716990054')) {
+            (BigInt(interaction.member.permissions) & MANAGE_NICKNAMES) !== MANAGE_NICKNAMES) {
             return c.json({
               type: InteractionResponseType.CHANNEL_MESSAGE_WITH_SOURCE,
               data: {
