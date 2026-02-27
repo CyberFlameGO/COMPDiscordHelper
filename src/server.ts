@@ -156,25 +156,6 @@ router.post('/interactions', async (c) => {
               const category = await categoryRes.json() as { id: string };
               const categoryId = category.id;
 
-              // Announcements channel: allow same as category minus SEND_MESSAGES and USE_APPLICATION_COMMANDS for the role, and explicitly deny those two
-              const announcementsAllowInt = categoryAllowInt & ~SEND_MESSAGES & ~USE_APPLICATION_COMMANDS;
-              const announcementsAllow = announcementsAllowInt.toString();
-              const announcementsDenyInt = SEND_MESSAGES | USE_APPLICATION_COMMANDS;
-              const announcementsDeny = announcementsDenyInt.toString();
-              const announcementsOverwrites = [
-                {
-                  id: guildId, // @everyone
-                  type: 0,
-                  deny: VIEW_CHANNEL.toString(),
-                },
-                {
-                  id: roleId,
-                  type: 0,
-                  allow: announcementsAllow,
-                  deny: announcementsDeny,
-                },
-              ];
-
               const announcementsRes = await fetch(`${discordApi}/guilds/${guildId}/channels`, {
                 method: 'POST',
                 headers: {
@@ -186,7 +167,6 @@ router.post('/interactions', async (c) => {
                   type: 0, // Text channel
                   parent_id: categoryId,
                   topic: `Announcements for ${courseCode.toUpperCase()} - ${courseName}`,
-                  permission_overwrites: announcementsOverwrites,
                 }),
               });
 
