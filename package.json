@@ -23,7 +23,7 @@
     "cheerio": "1.2.0",
     "discord-api-types": "^0.38.40",
     "discord-interactions": "^4.4.0",
-    "hono": "^4.12.3"
+    "hono": "^4.12.5"
   },
   "devDependencies": {
     "@cloudflare/workers-types": "^4.20260305.0",
@@ -38,12 +38,12 @@
     "eslint": "^10.0.2",
     "eslint-config-prettier": "^10.1.8",
     "eslint-plugin-prettier": "^5.5.5",
-    "globals": "^17.3.0",
+    "globals": "^17.4.0",
     "mocha": "^11.7.5",
     "pnpm": "^10.30.3",
     "prettier": "^3.8.1",
-    "sinon": "^21.0.1",
+    "sinon": "^21.0.2",
     "typescript": "^5.9.3",
-    "wrangler": "^4.69.0"
+    "wrangler": "^4.70.0"
   }
 }

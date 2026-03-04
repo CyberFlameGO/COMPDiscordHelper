@@ -165,6 +165,7 @@ router.post('/interactions', async (c) => {
                 body: JSON.stringify({
                   name: `${courseCode.toUpperCase()}-announcements`,
                   type: 0, // Text channel
+                  rate_limit_per_user: 120, //ratelimit/slowmode 2min
                   parent_id: categoryId,
                   topic: `Announcements for ${courseCode.toUpperCase()} - ${courseName}`,
                 }),
