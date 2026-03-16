@@ -77,7 +77,7 @@ importers:
         version: 5.9.3
       wrangler:
         specifier: ^4.70.0
-        version: 4.73.0(@cloudflare/workers-types@4.20260316.1)
+        version: 4.74.0(@cloudflare/workers-types@4.20260316.1)
 
 packages:
 
@@ -1064,8 +1064,8 @@ packages:
     resolution: {integrity: sha512-hXdUTZYIVOt1Ex//jAQi+wTZZpUpwBj/0QsOzqegb3rGMMeJiSEu5xLHnYfBrRV4RH2+OCSOO95Is/7x1WJ4bw==}
     engines: {node: '>=10'}
 
-  miniflare@4.20260312.0:
-    resolution: {integrity: sha512-pieP2rfXynPT6VRINYaiHe/tfMJ4c5OIhqRlIdLF6iZ9g5xgpEmvimvIgMpgAdDJuFlrLcwDUi8MfAo2R6dt/w==}
+  miniflare@4.20260312.1:
+    resolution: {integrity: sha512-YSWxec9ssisqkQgaCgcIQxZlB41E9hMiq1nxUgxXHRrE9NsfyC6ptSt8yfgBobsKIseAVKLTB/iEDpMumBv8oA==}
     engines: {node: '>=18.0.0'}
     hasBin: true
 
@@ -1325,8 +1325,8 @@ packages:
   workerpool@9.3.4:
     resolution: {integrity: sha512-TmPRQYYSAnnDiEB0P/Ytip7bFGvqnSU6I2BcuSw7Hx+JSg/DsUi5ebYfc8GYaSdpuvOcEs6dXxPurOYpe9QFwg==}
 
-  wrangler@4.73.0:
-    resolution: {integrity: sha512-VJXsqKDFCp6OtFEHXITSOR5kh95JOknwPY8m7RyQuWJQguSybJy43m4vhoCSt42prutTef7eeuw7L4V4xiynGw==}
+  wrangler@4.74.0:
+    resolution: {integrity: sha512-3qprbhgdUyqYGHZ+Y1k0gsyHLMOlLrKL/HU0LDqLlCkbsKPprUA0/ThE4IZsxD84xAAXY6pv5JUuxS2+OnMa3A==}
     engines: {node: '>=20.0.0'}
     hasBin: true
     peerDependencies:
@@ -2207,7 +2207,7 @@ snapshots:
     dependencies:
       semver: 7.7.4
 
-  miniflare@4.20260312.0:
+  miniflare@4.20260312.1:
     dependencies:
       '@cspotcode/source-map-support': 0.8.1
       sharp: 0.34.5
@@ -2495,13 +2495,13 @@ snapshots:
 
   workerpool@9.3.4: {}
 
-  wrangler@4.73.0(@cloudflare/workers-types@4.20260316.1):
+  wrangler@4.74.0(@cloudflare/workers-types@4.20260316.1):
     dependencies:
       '@cloudflare/kv-asset-handler': 0.4.2
       '@cloudflare/unenv-preset': 2.15.0(unenv@2.0.0-rc.24)(workerd@1.20260312.1)
       blake3-wasm: 2.1.5
       esbuild: 0.27.3
-      miniflare: 4.20260312.0
+      miniflare: 4.20260312.1
       path-to-regexp: 6.3.0
       unenv: 2.0.0-rc.24
       workerd: 1.20260312.1
