@@ -38,7 +38,7 @@ importers:
         version: 10.0.10
       '@types/sinon':
         specifier: ^21.0.0
-        version: 21.0.0
+        version: 21.0.1
       c8:
         specifier: ^11.0.0
         version: 11.0.0
@@ -581,8 +581,8 @@ packages:
   '@types/mocha@10.0.10':
     resolution: {integrity: sha512-xPyYSz1cMPnJQhl0CLMH68j3gprKZaTjG3s5Vi+fDgx+uhG9NOXwbVt52eFS8ECyXhyKcjDLCBEqBExKuiZb7Q==}
 
-  '@types/sinon@21.0.0':
-    resolution: {integrity: sha512-+oHKZ0lTI+WVLxx1IbJDNmReQaIsQJjN2e7UUrJHEeByG7bFeKJYsv1E75JxTQ9QKJDp21bAa/0W2Xo4srsDnw==}
+  '@types/sinon@21.0.1':
+    resolution: {integrity: sha512-5yoJSqLbjH8T9V2bksgRayuhpZy+723/z6wBOR+Soe4ZlXC0eW8Na71TeaZPUWDQvM7LYKa9UGFc6LRqxiR5fQ==}
 
   '@types/sinonjs__fake-timers@15.0.1':
     resolution: {integrity: sha512-Ko2tjWJq8oozHzHV+reuvS5KYIRAokHnGbDwGh/J64LntgpbuylF74ipEL24HCyRjf9FOlBiBHWBR1RlVKsI1w==}
@@ -1728,7 +1728,7 @@ snapshots:
 
   '@types/mocha@10.0.10': {}
 
-  '@types/sinon@21.0.0':
+  '@types/sinon@21.0.1':
     dependencies:
       '@types/sinonjs__fake-timers': 15.0.1
 
