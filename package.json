@@ -43,7 +43,7 @@
     "pnpm": "^10.30.3",
     "prettier": "^3.8.1",
     "sinon": "^21.0.2",
-    "typescript": "^5.9.3",
+    "typescript": "^6.0.0",
     "wrangler": "^4.70.0"
   }
 }
