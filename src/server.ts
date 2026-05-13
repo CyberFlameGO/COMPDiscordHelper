@@ -275,7 +275,7 @@ router.post('/interactions', async (c) => {
 
           if (courseCode) {
             const courseData = await c.env.DISCORD_DATA.get(
-              `course_${courseCode.toUpperCase()}`
+              `${interaction.guild_id}_course_${courseCode.toUpperCase()}`
             );
             if (courseData) {
               const { roleId } = JSON.parse(courseData);
