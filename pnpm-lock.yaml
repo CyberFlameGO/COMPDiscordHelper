@@ -23,13 +23,13 @@ importers:
     devDependencies:
       '@cloudflare/workers-types':
         specifier: ^4.20260511.1
-        version: 4.20260511.1
+        version: 4.20260615.1
       '@eslint/eslintrc':
         specifier: ^3.3.5
         version: 3.3.5(supports-color@8.1.1)
       '@eslint/js':
         specifier: ^10.0.1
-        version: 10.0.1(eslint@10.5.0)
+        version: 10.0.1(eslint@10.5.0(supports-color@8.1.1))
       '@types/chai':
         specifier: ^5.2.3
         version: 5.2.3
@@ -50,13 +50,13 @@ importers:
         version: 17.4.2
       eslint:
         specifier: ^10.3.0
-        version: 10.5.0
+        version: 10.5.0(supports-color@8.1.1)
       eslint-config-prettier:
         specifier: ^10.1.8
-        version: 10.1.8(eslint@10.5.0)
+        version: 10.1.8(eslint@10.5.0(supports-color@8.1.1))
       eslint-plugin-prettier:
         specifier: ^5.5.5
-        version: 5.5.6(eslint-config-prettier@10.1.8(eslint@10.5.0))(eslint@10.5.0)(prettier@3.8.4)
+        version: 5.5.6(eslint-config-prettier@10.1.8(eslint@10.5.0(supports-color@8.1.1)))(eslint@10.5.0(supports-color@8.1.1))(prettier@3.8.4)
       globals:
         specifier: ^17.6.0
         version: 17.6.0
@@ -77,7 +77,7 @@ importers:
         version: 6.0.3
       wrangler:
         specifier: ^4.90.1
-        version: 4.100.0(@cloudflare/workers-types@4.20260511.1)
+        version: 4.100.0(@cloudflare/workers-types@4.20260615.1)
 
 packages:
 
@@ -128,8 +128,8 @@ packages:
     cpu: [x64]
     os: [win32]
 
-  '@cloudflare/workers-types@4.20260511.1':
-    resolution: {integrity: sha512-FA+si7cOq9i/gtCHhIc0XJL0l1F/ApF+m00752Aj7WZFJrj3ZulT2T8/+rT3BabMT0QEnqFEGIqCgrmqhgEfMg==}
+  '@cloudflare/workers-types@4.20260615.1':
+    resolution: {integrity: sha512-fGOiTwoLj/8bU8mj3VAfa1EULx4ceZhDwnjvY+afDBlSXI9pvY7PE9t62rGEhJjbAOGd7i5WUDun0eZCWBDrzg==}
 
   '@cspotcode/source-map-support@0.8.1':
     resolution: {integrity: sha512-IchNf6dN4tHoMFIn/7OE8LWZ19Y6q/67Bmf6vnGREv8RSbBVb9LPJxEcnwrcwX6ixSvaiGoomAUvu4YSxXrVgw==}
@@ -1422,7 +1422,7 @@ snapshots:
   '@cloudflare/workerd-windows-64@1.20260611.1':
     optional: true
 
-  '@cloudflare/workers-types@4.20260511.1': {}
+  '@cloudflare/workers-types@4.20260615.1': {}
 
   '@cspotcode/source-map-support@0.8.1':
     dependencies:
@@ -1513,12 +1513,12 @@ snapshots:
 
   '@eslint-community/eslint-utils@4.9.1(eslint@10.5.0)':
     dependencies:
-      eslint: 10.5.0
+      eslint: 10.5.0(supports-color@8.1.1)
       eslint-visitor-keys: 3.4.3
 
   '@eslint-community/regexpp@4.12.2': {}
 
-  '@eslint/config-array@0.23.5':
+  '@eslint/config-array@0.23.5(supports-color@8.1.1)':
     dependencies:
       '@eslint/object-schema': 3.0.5
       debug: 4.4.3(supports-color@8.1.1)
@@ -1548,9 +1548,9 @@ snapshots:
     transitivePeerDependencies:
       - supports-color
 
-  '@eslint/js@10.0.1(eslint@10.5.0)':
+  '@eslint/js@10.0.1(eslint@10.5.0(supports-color@8.1.1))':
     optionalDependencies:
-      eslint: 10.5.0
+      eslint: 10.5.0(supports-color@8.1.1)
 
   '@eslint/object-schema@3.0.5': {}
 
@@ -1987,18 +1987,18 @@ snapshots:
 
   escape-string-regexp@4.0.0: {}
 
-  eslint-config-prettier@10.1.8(eslint@10.5.0):
+  eslint-config-prettier@10.1.8(eslint@10.5.0(supports-color@8.1.1)):
     dependencies:
-      eslint: 10.5.0
+      eslint: 10.5.0(supports-color@8.1.1)
 
-  eslint-plugin-prettier@5.5.6(eslint-config-prettier@10.1.8(eslint@10.5.0))(eslint@10.5.0)(prettier@3.8.4):
+  eslint-plugin-prettier@5.5.6(eslint-config-prettier@10.1.8(eslint@10.5.0(supports-color@8.1.1)))(eslint@10.5.0(supports-color@8.1.1))(prettier@3.8.4):
     dependencies:
-      eslint: 10.5.0
+      eslint: 10.5.0(supports-color@8.1.1)
       prettier: 3.8.4
       prettier-linter-helpers: 1.0.1
       synckit: 0.11.13
     optionalDependencies:
-      eslint-config-prettier: 10.1.8(eslint@10.5.0)
+      eslint-config-prettier: 10.1.8(eslint@10.5.0(supports-color@8.1.1))
 
   eslint-scope@9.1.2:
     dependencies:
@@ -2013,11 +2013,11 @@ snapshots:
 
   eslint-visitor-keys@5.0.1: {}
 
-  eslint@10.5.0:
+  eslint@10.5.0(supports-color@8.1.1):
     dependencies:
       '@eslint-community/eslint-utils': 4.9.1(eslint@10.5.0)
       '@eslint-community/regexpp': 4.12.2
-      '@eslint/config-array': 0.23.5
+      '@eslint/config-array': 0.23.5(supports-color@8.1.1)
       '@eslint/config-helpers': 0.6.0
       '@eslint/core': 1.2.1
       '@eslint/plugin-kit': 0.7.2
@@ -2521,7 +2521,7 @@ snapshots:
 
   workerpool@9.3.4: {}
 
-  wrangler@4.100.0(@cloudflare/workers-types@4.20260511.1):
+  wrangler@4.100.0(@cloudflare/workers-types@4.20260615.1):
     dependencies:
       '@cloudflare/kv-asset-handler': 0.5.0
       '@cloudflare/unenv-preset': 2.16.1(unenv@2.0.0-rc.24)(workerd@1.20260611.1)
@@ -2532,7 +2532,7 @@ snapshots:
       unenv: 2.0.0-rc.24
       workerd: 1.20260611.1
     optionalDependencies:
-      '@cloudflare/workers-types': 4.20260511.1
+      '@cloudflare/workers-types': 4.20260615.1
       fsevents: 2.3.3
     transitivePeerDependencies:
       - bufferutil
