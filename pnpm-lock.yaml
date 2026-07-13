@@ -16,14 +16,14 @@ importers:
         version: 4.4.0
       hono:
         specifier: ^4.12.27
-        version: 4.12.28
+        version: 4.12.30
     devDependencies:
       '@cloudflare/workers-types':
         specifier: ^4.20260623.1
         version: 4.20260702.1
       '@eslint/eslintrc':
         specifier: ^3.3.5
-        version: 3.3.6
+        version: 3.3.6(supports-color@8.1.1)
       '@eslint/js':
         specifier: ^10.0.1
         version: 10.0.1(eslint@10.6.0(supports-color@8.1.1))
@@ -909,8 +909,8 @@ packages:
     resolution: {integrity: sha512-F/1DnUGPopORZi0ni+CvrCgHQ5FyEAHRLSApuYWMmrbSwoN2Mn/7k+Gl38gJnR7yyDZk6WLXwiGod1JOWNDKGw==}
     hasBin: true
 
-  hono@4.12.28:
-    resolution: {integrity: sha512-YwUvVpSF7m1yOblFPrU3Hbo8XhPheBoiyfGuII6z19LnOr6JpDnyyp7LFNrfV56wS8tpvtBFGRISHN02pDdLOA==}
+  hono@4.12.30:
+    resolution: {integrity: sha512-emn+JoJjrN9YTpRDS5it/UI2SO9BAE37T6I3d963RxcZ81G9A4pr2SZTEiiaiKbzx+NKRg5BZ89fCL7gCJCUog==}
     engines: {node: '>=16.9.0'}
 
   html-escaper@2.0.2:
@@ -1445,7 +1445,7 @@ snapshots:
     dependencies:
       '@types/json-schema': 7.0.15
 
-  '@eslint/eslintrc@3.3.6':
+  '@eslint/eslintrc@3.3.6(supports-color@8.1.1)':
     dependencies:
       ajv: 6.15.0
       debug: 4.4.3(supports-color@8.1.1)
@@ -1976,7 +1976,7 @@ snapshots:
 
   he@1.2.0: {}
 
-  hono@4.12.28: {}
+  hono@4.12.30: {}
 
   html-escaper@2.0.2: {}
 
