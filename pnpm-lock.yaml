@@ -62,7 +62,7 @@ importers:
         version: 11.7.6
       pnpm:
         specifier: ^11.9.0
-        version: 11.10.0
+        version: 11.13.1
       prettier:
         specifier: ^3.8.4
         version: 3.9.5
@@ -1092,8 +1092,8 @@ packages:
   picocolors@1.1.1:
     resolution: {integrity: sha512-xceH2snhtb5M9liqDsmEw56le376mTZkEX/jEb/RxNFyegNul7eNslCXP9FDj/Lcu0X8KEyMceP2ntpaHrDEVA==}
 
-  pnpm@11.10.0:
-    resolution: {integrity: sha512-C3+LmAYAMZBMAX46QesYehbUDuuCm5XE+MsDaBdh/Eq1PdIZEVubRH9NzhoFohR2RGHn03AzkqnzL5URzoyGyA==}
+  pnpm@11.13.1:
+    resolution: {integrity: sha512-svx2g7imUlQU59E+G6KMqt3elr9m7FQL+ut+cCuB8+C+TR8pXt9/n+A5Z0Co3ORQnFgt33mJH0VD/qMtN2RfJQ==}
     engines: {node: '>=22.13'}
     hasBin: true
 
@@ -1422,7 +1422,7 @@ snapshots:
   '@esbuild/win32-x64@0.28.1':
     optional: true
 
-  '@eslint-community/eslint-utils@4.9.1(eslint@10.7.0)':
+  '@eslint-community/eslint-utils@4.9.1(eslint@10.7.0(supports-color@8.1.1))':
     dependencies:
       eslint: 10.7.0(supports-color@8.1.1)
       eslint-visitor-keys: 3.4.3
@@ -1856,7 +1856,7 @@ snapshots:
 
   eslint@10.7.0(supports-color@8.1.1):
     dependencies:
-      '@eslint-community/eslint-utils': 4.9.1(eslint@10.7.0)
+      '@eslint-community/eslint-utils': 4.9.1(eslint@10.7.0(supports-color@8.1.1))
       '@eslint-community/regexpp': 4.12.2
       '@eslint/config-array': 0.23.5(supports-color@8.1.1)
       '@eslint/config-helpers': 0.6.0
@@ -2163,7 +2163,7 @@ snapshots:
 
   picocolors@1.1.1: {}
 
-  pnpm@11.10.0: {}
+  pnpm@11.13.1: {}
 
   prelude-ls@1.2.1: {}
 
