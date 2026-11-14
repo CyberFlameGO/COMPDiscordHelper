@@ -22,6 +22,10 @@ function getValueByKey(options: discordJs.APIApplicationCommandInteractionDataOp
   return null;
 }
 
+function normalizeCourseCode(courseCode: string): string {
+  return courseCode.split(/\s+[—-]\s+/)[0].trim().toUpperCase();
+}
+
 async function createChannel(guildId: string, name: string, parentId: string, topic: string, token: string) {
   return fetch(`${discordApi}/guilds/${guildId}/channels`, {
     method: 'POST',
@@ -218,8 +222,9 @@ router.post('/interactions', async (c) => {
           const courseCode = getValueByKey(interactionData.options!, "course_code") as string;
 
           if (courseCode) {
+            const normalizedCode = normalizeCourseCode(courseCode);
             const courseData = await c.env.DISCORD_DATA.get(
-              `${interaction.guild_id}_course_${courseCode.toUpperCase()}`
+              `${interaction.guild_id}_course_${normalizedCode}`
             );
             if (courseData) {
               const { roleId } = JSON.parse(courseData);
@@ -274,8 +279,9 @@ router.post('/interactions', async (c) => {
           const courseCode = getValueByKey(interactionData.options!, "course_code") as string;
 
           if (courseCode) {
+            const normalizedCode = normalizeCourseCode(courseCode);
             const courseData = await c.env.DISCORD_DATA.get(
-              `${interaction.guild_id}_course_${courseCode.toUpperCase()}`
+              `${interaction.guild_id}_course_${normalizedCode}`
             );
             if (courseData) {
               const { roleId } = JSON.parse(courseData);
@@ -451,7 +457,7 @@ router.post('/interactions', async (c) => {
             });
           }
 
-          const normalizedCode = courseCode.toUpperCase();
+          const normalizedCode = normalizeCourseCode(courseCode);
           const kvKey = `${guildId}_course_${normalizedCode}`;
           const courseData = await c.env.DISCORD_DATA.get(kvKey);
 
