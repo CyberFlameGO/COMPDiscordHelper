@@ -419,18 +419,115 @@ router.post('/interactions', async (c) => {
           });
         }
 
+        case commands.REMOVE_COMMAND.name.toLowerCase(): {
+          const ADMINISTRATOR = 8n;
+
+          if (
+            !interaction.member ||
+            (BigInt(interaction.member.permissions) & ADMINISTRATOR) !== ADMINISTRATOR
+          ) {
+            return c.json({
+              type: InteractionResponseType.CHANNEL_MESSAGE_WITH_SOURCE,
+              data: {
+                content:
+                  'You do not have the correct role necessary to perform this action. If you believe this is an error, please contact the administrator.',
+                flags: InteractionResponseFlags.EPHEMERAL,
+              },
+            });
+          }
+
+          const interactionData = interaction.data as discordJs.APIChatInputApplicationCommandInteractionData;
+          const interactionOptions = interactionData.options!;
+          const courseCode = getValueByKey(interactionOptions, 'course_code') as string;
+          const guildId = interaction.guild_id;
+
+          if (!courseCode || !guildId) {
+            return c.json({
+              type: InteractionResponseType.CHANNEL_MESSAGE_WITH_SOURCE,
+              data: {
+                content: `Course ${courseCode} not found.`,
+                flags: InteractionResponseFlags.EPHEMERAL,
+              },
+            });
+          }
+
+          const normalizedCode = courseCode.toUpperCase();
+          const kvKey = `${guildId}_course_${normalizedCode}`;
+          const courseData = await c.env.DISCORD_DATA.get(kvKey);
+
+          if (!courseData) {
+            return c.json({
+              type: InteractionResponseType.CHANNEL_MESSAGE_WITH_SOURCE,
+              data: {
+                content: `Course ${courseCode} not found.`,
+                flags: InteractionResponseFlags.EPHEMERAL,
+              },
+            });
+          }
+
+          let roleId: string | undefined;
+          try {
+            ({ roleId } = JSON.parse(courseData) as { roleId?: string });
+          } catch {
+            roleId = undefined;
+          }
+
+          if (!roleId) {
+            return c.json({
+              type: InteractionResponseType.CHANNEL_MESSAGE_WITH_SOURCE,
+              data: {
+                content: `Failed to archive role for course ${courseCode}.`,
+                flags: InteractionResponseFlags.EPHEMERAL,
+              },
+            });
+          }
+
+          const roleRes = await fetch(`${discordApi}/guilds/${guildId}/roles/${roleId}`, {
+            method: 'PATCH',
+            headers: {
+              'Authorization': `Bot ${c.env.DISCORD_TOKEN}`,
+              'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+              name: `[archived] ${normalizedCode}`,
+            }),
+          });
+
+          if (!roleRes.ok) {
+            return c.json({
+              type: InteractionResponseType.CHANNEL_MESSAGE_WITH_SOURCE,
+              data: {
+                content: `Failed to archive role for course ${courseCode}.`,
+                flags: InteractionResponseFlags.EPHEMERAL,
+              },
+            });
+          }
+
+          await c.env.DISCORD_DATA.delete(kvKey);
+
+          return c.json({
+            type: InteractionResponseType.CHANNEL_MESSAGE_WITH_SOURCE,
+            data: {
+              content: `Course ${courseCode} removed; role archived and removed from database.`,
+            },
+          });
+        }
+
         default:
           return c.json({ error: 'Unknown Type' }, { status: 400 });
       }
     }
 
     case discordJs.InteractionType.ApplicationCommandAutocomplete: {
-      // Returns autocomplete for focused field of the join/leave command
+      // Returns autocomplete for focused field of the join/leave/remove command
       const interactionData = interaction.data as discordJs.APIChatInputApplicationCommandInteractionData;
       const commandName = interactionData.name.toLowerCase();
       const options = interactionData.options!;
-      // Autocomplete for join command
-      if (commandName === commands.JOIN_COMMAND.name.toLowerCase()) {
+      // Autocomplete for join and remove commands
+      if (
+        commandName === commands.JOIN_COMMAND.name.toLowerCase() ||
+        commandName === commands.REMOVE_COMMAND.name.toLowerCase()
+      ) {
         const courseCode = options.find((opt) => opt.name === 'course_code') as discordJs.APIApplicationCommandInteractionDataStringOption;
         if (courseCode && courseCode.focused) {
           const courses = await c.env.DISCORD_DATA.list({ prefix: `${interaction.guild_id}_course_` });

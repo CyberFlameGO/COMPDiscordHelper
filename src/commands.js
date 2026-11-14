@@ -79,3 +79,19 @@ export const GENERATE_COMMAND = {
     },
   ],
 };
+
+export const REMOVE_COMMAND = {
+  name: 'remove',
+  description: 'Remove a course and archive its role.',
+  integration_types: [0, 1],
+  contexts: [0, 1, 2],
+  options: [
+    {
+      type: ApplicationCommandOptionType.String,
+      name: 'course_code',
+      description: 'Course code to remove',
+      autocomplete: true,
+      required: true,
+    },
+  ],
+};

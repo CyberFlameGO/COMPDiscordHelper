@@ -4,7 +4,6 @@
   "description": "Worker for the First Year Technology Students Discord server",
   "type": "module",
   "private": true,
-  "packageManager": "pnpm@11.18.0",
   "main": "src/server.js",
   "scripts": {
     "preinstall": "npx only-allow pnpm",
@@ -20,29 +19,29 @@
   "author": "Aaron Lowe <cyberflameu@gmail.com>",
   "license": "MIT",
   "dependencies": {
-    "discord-api-types": "^0.38.52",
+    "discord-api-types": "^0.38.59",
     "discord-interactions": "^4.4.0",
-    "hono": "^4.12.33"
+    "hono": "^4.13.18"
   },
   "devDependencies": {
-    "@cloudflare/workers-types": "^5.20260801.1",
-    "@eslint/eslintrc": "^3.3.6",
+    "@cloudflare/workers-types": "^5.20261114.1",
+    "@eslint/eslintrc": "^3.3.7",
     "@eslint/js": "^10.0.1",
     "@types/chai": "^5.2.3",
     "@types/mocha": "^10.0.10",
-    "@types/sinon": "^22.0.0",
+    "@types/sinon": "^22.0.2",
     "c8": "^12.0.0",
-    "chai": "^6.2.2",
-    "dotenv": "^17.4.2",
-    "eslint": "^10.8.0",
+    "chai": "^6.3.0",
+    "dotenv": "^18.0.10",
+    "eslint": "^10.15.0",
     "eslint-config-prettier": "^10.1.8",
-    "eslint-plugin-prettier": "^5.5.6",
-    "globals": "^17.8.0",
-    "mocha": "^11.7.6",
-    "pnpm": "^11.18.0",
-    "prettier": "^3.9.6",
+    "eslint-plugin-prettier": "^5.5.7",
+    "globals": "^17.14.0",
+    "mocha": "^12.0.3",
+    "pnpm": "^12.18.0",
+    "prettier": "^3.10.1",
     "sinon": "^22.1.0",
     "typescript": "^7.0.2",
-    "wrangler": "^4.118.0"
+    "wrangler": "^4.162.0"
   }
 }
